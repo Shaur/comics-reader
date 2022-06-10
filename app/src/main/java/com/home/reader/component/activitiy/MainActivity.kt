@@ -1,26 +1,32 @@
 package com.home.reader.component.activitiy
 
 import android.content.Intent
-import android.net.Uri
 import android.os.Bundle
+import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts.StartActivityForResult
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.Observer
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.GridLayoutManager
+import androidx.work.Data
+import androidx.work.OneTimeWorkRequestBuilder
+import androidx.work.WorkInfo
+import androidx.work.WorkManager
+import com.home.reader.async.ImportComicsWorker
+import com.home.reader.async.ImportComicsWorker.Companion.IMPORT_WORKER_RESULT_KEY
+import com.home.reader.async.ImportComicsWorker.Companion.IMPORT_WORKER_SERIES_ID_KEY
+import com.home.reader.async.ImportComicsWorker.Companion.IMPORT_WORKER_URI_KEY
 import com.home.reader.component.adapter.SeriesAdapter
-import com.home.reader.component.dto.CbrMeta
 import com.home.reader.databinding.ActivityMainBinding
-import com.home.reader.persistence.entity.Issue
-import com.home.reader.persistence.entity.Series
 import com.home.reader.persistence.entity.SeriesWithIssues
 import com.home.reader.persistence.repository.SeriesRepository
 import com.home.reader.utils.*
 import com.home.reader.utils.Constants.COMICS_MIME_TYPES
 import com.home.reader.utils.Constants.RequestCodes.BACK_CODE
+import com.home.reader.utils.Constants.Sizes.PREVIEW_COVER_WIDTH_IN_DP
+import com.home.reader.utils.Constants.Sizes.PREVIEW_GATTER_WIDTH_ID_DP
 import kotlinx.coroutines.launch
-import java.nio.file.Files
-import java.nio.file.StandardCopyOption
 
 
 class MainActivity : AppCompatActivity() {
@@ -28,6 +34,7 @@ class MainActivity : AppCompatActivity() {
     private val seriesData = MutableLiveData<MutableList<SeriesWithIssues>>()
     private lateinit var seriesRepository: SeriesRepository
     private lateinit var binding: ActivityMainBinding
+    private lateinit var workerManager: WorkManager
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -38,8 +45,11 @@ class MainActivity : AppCompatActivity() {
         createNecessaryFolders()
 
         seriesRepository = SeriesRepository(seriesDao(), issueDao())
+        workerManager = WorkManager.getInstance(applicationContext)
 
-        val spanCount = (widthInDp() / (110 + 10)).toInt()
+        val spanCount =
+            (widthInDp() / (PREVIEW_COVER_WIDTH_IN_DP + PREVIEW_GATTER_WIDTH_ID_DP)).toInt()
+
         binding.seriesView.layoutManager = GridLayoutManager(this, spanCount)
 
         seriesData.observe(this) {
@@ -67,70 +77,65 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    private fun insertSeries(seriesId: Long) {
+        lifecycleScope.launch {
+            val series = seriesDao().getSeriesById(seriesId)
+            (binding.seriesView.adapter as SeriesAdapter).addItem(series)
+        }
+    }
+
     private fun createNecessaryFolders() {
         dataDir().mkdirs()
         coversDir().mkdirs()
+    }
+
+    fun openSeries(intent: Intent) {
+        openSeriesResult.launch(intent)
+    }
+
+    private val openSeriesResult = registerForActivityResult(StartActivityForResult()) { result ->
+        if(result.resultCode == RESULT_CANCELED) {
+            updateSeries()
+        }
     }
 
     private var chooseFileLauncher = registerForActivityResult(StartActivityForResult()) { result ->
         if (result.resultCode == BACK_CODE) {
             updateSeries()
         } else if (result.resultCode == RESULT_OK) {
-            val intent = result.data
+            val clipData = result.data?.clipData
+            val selectedFiles = if (clipData != null) {
+                (0 until clipData.itemCount).map { clipData.getItemAt(it).uri }
+            } else {
+                listOf(result.data?.data)
+            }
 
-            val selectedFiles = intent?.clipData ?: return@registerForActivityResult
-            val filesCount = selectedFiles.itemCount
-            for (i in 0 until filesCount) {
-                val uri = selectedFiles.getItemAt(i).uri
-                importFile(uri)
+            for (uri in selectedFiles) {
+                val data = Data.Builder()
+                    .putString(IMPORT_WORKER_URI_KEY, uri.toString())
+                    .build()
+
+                val importComicsWorkerRequest = OneTimeWorkRequestBuilder<ImportComicsWorker>()
+                    .setInputData(data)
+                    .build()
+
+                workerManager.getWorkInfoByIdLiveData(importComicsWorkerRequest.id)
+                    .observe(this, importFileObserver)
+
+                workerManager.enqueue(importComicsWorkerRequest)
             }
         }
     }
 
-    private fun importFile(uri: Uri) {
-        val fileName = getFileName(uri) ?: return
-        var input = contentResolver.openInputStream(uri) ?: return
-
-        val meta = CbrUtil.getMeta(input, fileName)
-
-        lifecycleScope.launch {
-            val issueId = resolveIssueId(meta)
-
-            val issueDir = dataDir().resolve(issueId.toString())
-
-            input = contentResolver.openInputStream(uri) ?: return@launch
-            CbrUtil.extract(input, issueDir)
-
-            val cover = coversPath().resolve("$issueId.jpg")
-            val firstPage = (issueDir.listFiles() ?: arrayOf()).minByOrNull { it.name }
-            firstPage?.let {
-                Files.copy(it.toPath(), cover, StandardCopyOption.REPLACE_EXISTING)
-            }
-
-            updateSeries()
+    private val importFileObserver = Observer<WorkInfo> {
+        val importIssueName = it.outputData.getString(IMPORT_WORKER_RESULT_KEY)
+        val seriesId = it.outputData.getLong(IMPORT_WORKER_SERIES_ID_KEY, -1L)
+        if (importIssueName != null) {
+            Toast.makeText(this, importIssueName, Toast.LENGTH_SHORT).show()
         }
-    }
 
-    private suspend fun resolveIssueId(meta: CbrMeta): Long {
-        return with(meta) {
-            var series = seriesDao().getSeriesByName(seriesName)
-            if (series == null) {
-                val seriesId = seriesDao().insert(Series(name = seriesName))
-                series = Series(seriesId, seriesName)
-            }
-
-            var issue = issueDao().findBySeriesIdAndIssue(series.id!!, number)
-            if (issue != null) {
-                return@with issue.id!!
-            }
-
-            issue = Issue(
-                issue = number,
-                seriesId = series.id!!,
-                pagesCount = pagesCount
-            )
-
-            return@with issueDao().insert(issue)
+        if (seriesId != -1L) {
+            insertSeries(seriesId)
         }
     }
 

@@ -4,6 +4,7 @@ import com.github.junrar.Junrar
 import com.home.reader.component.dto.CbrMeta
 import java.io.File
 import java.io.InputStream
+import java.nio.file.Files
 import kotlin.math.min
 
 object CbrUtil {
@@ -15,7 +16,7 @@ object CbrUtil {
         val firstPageName = descriptors.first().path
         val seriesName = crossNames(fileName, firstPageName).trim()
 
-        return CbrMeta (
+        return CbrMeta(
             seriesName = seriesName,
             number = extractNumber(fileName, seriesName),
             pagesCount = descriptors.count()
@@ -25,12 +26,16 @@ object CbrUtil {
     private fun extractNumber(fileName: String, seriesName: String): String {
         val substring = fileName.substring(seriesName.length + 1)
         val indexOfSpace = substring.indexOf(" ")
+        if (indexOfSpace == -1) {
+            return ""
+        }
+
         val number = substring.substring(0, indexOfSpace).trim()
         return (number.toIntOrNull() ?: number.toDoubleOrNull() ?: number).toString()
     }
 
     fun extract(input: InputStream, destination: File) {
-        if(!destination.exists()) {
+        if (!destination.exists()) {
             destination.mkdirs()
         }
 
@@ -40,6 +45,12 @@ object CbrUtil {
                 files.remove(it)
                 it.delete()
             }
+
+        val parentFile = files.first().parentFile
+        if (parentFile != destination) {
+            files.forEach { it.renameTo(destination.resolve(it.name)) }
+            parentFile?.deleteRecursively()
+        }
     }
 
     private fun crossNames(name1: String, name2: String): String {
@@ -50,6 +61,11 @@ object CbrUtil {
 
         val builder: StringBuilder = StringBuilder()
         for (i in 0 until min) {
+            if (name1LowerCase[i] == ' ' || name2LowerCase[i] == ' ') {
+                builder.append(' ')
+                continue
+            }
+
             if (name1LowerCase[i] != name2LowerCase[i]) {
                 break
             }

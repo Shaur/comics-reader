@@ -19,4 +19,9 @@ object Constants {
     object Dirs {
         const val COVERS = "covers"
     }
+
+    object Sizes {
+        const val PREVIEW_COVER_WIDTH_IN_DP = 110
+        const val PREVIEW_GATTER_WIDTH_ID_DP = 10
+    }
 }

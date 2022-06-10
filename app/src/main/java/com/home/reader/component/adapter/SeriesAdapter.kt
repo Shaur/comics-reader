@@ -14,6 +14,7 @@ import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.recyclerview.widget.RecyclerView
 import com.home.reader.R
 import com.home.reader.component.activitiy.IssuesActivity
+import com.home.reader.component.activitiy.MainActivity
 import com.home.reader.persistence.entity.SeriesWithIssues
 import com.home.reader.utils.coversPath
 import java.io.File
@@ -21,13 +22,13 @@ import java.util.concurrent.Executors
 
 
 class SeriesAdapter(
-    private var series: List<SeriesWithIssues>,
+    private var series: MutableList<SeriesWithIssues>,
     private val parent: Activity,
 ) : RecyclerView.Adapter<SeriesAdapter.SeriesViewHolder>() {
 
     private val readIssuesCount = series.associate {
         it.series.id to it.issues.count { issue -> issue.isRead() }
-    }
+    }.toMutableMap()
 
     private var basePath: String = "${parent.filesDir}/${parent.packageName}"
     private val imageLoaderExecutor = Executors.newFixedThreadPool(3)
@@ -83,6 +84,12 @@ class SeriesAdapter(
         }
     }
 
+    fun addItem(item: SeriesWithIssues) {
+        series.add(item)
+        readIssuesCount[item.series.id] = item.issues.count { issue -> issue.isRead() }
+        notifyItemInserted(series.size - 1)
+    }
+
     private fun getCover(id: Long?, width: Int, height: Int): Bitmap? {
         val dir = File("$basePath/${id}")
         if (!dir.exists()) {
@@ -106,7 +113,7 @@ class SeriesAdapter(
                 putExtra("SERIES_ID", seriesId)
             }
 
-            parent.startActivityForResult(intent, 50)
+            (parent as MainActivity).openSeries(intent)
         }
     }
 

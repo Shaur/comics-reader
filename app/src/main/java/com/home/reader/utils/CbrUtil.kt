@@ -4,23 +4,58 @@ import com.github.junrar.Junrar
 import com.home.reader.component.dto.CbrMeta
 import java.io.File
 import java.io.InputStream
-import java.nio.file.Files
 import kotlin.math.min
 
 object CbrUtil {
+
+    private val REGEX = Regex("^[A-Za-z\\d)(.\\-\" ']+ \\d{1,3}")
 
     fun getMeta(input: InputStream, fileName: String): CbrMeta {
         val descriptors = Junrar.getContentsDescription(input)
             .filter { !it.path.endsWith("xml") }
 
         val firstPageName = descriptors.first().path
-        val seriesName = crossNames(fileName, firstPageName).trim()
+        val seriesName = listOf(
+            crossNames(fileName, firstPageName).trim(),
+            extractSeriesNameFromFileName(fileName)
+        )
+            .filter { it != fileName && it.isNotEmpty() }
+            .minByOrNull { it.length } ?: fileName
+
+        val number = listOf(
+            extractNumber(fileName, seriesName),
+            extractNumberFromFileName(fileName)
+        ).firstOrNull { it.isNotBlank() } ?: ""
+
 
         return CbrMeta(
             seriesName = seriesName,
-            number = extractNumber(fileName, seriesName),
+            number = number,
             pagesCount = descriptors.count()
         )
+    }
+
+    private fun extractSeriesNameFromFileName(fileName: String): String {
+        val normalized = fileName.replace("_", " ")
+        val nameWithNumber = REGEX.find(normalized)?.value ?: fileName
+        val lastIndexOfSpace = nameWithNumber.lastIndexOf(" ")
+        if (lastIndexOfSpace == -1) {
+            return fileName
+        }
+
+        return nameWithNumber.substring(0, lastIndexOfSpace).trim()
+    }
+
+    private fun extractNumberFromFileName(fileName: String): String {
+        val normalized = fileName.replace("_", " ")
+        val nameWithNumber = REGEX.find(normalized)?.value ?: fileName
+        val lastIndexOfSpace = nameWithNumber.lastIndexOf(" ")
+        if (lastIndexOfSpace == -1) {
+            return fileName
+        }
+
+        val number = nameWithNumber.substring(lastIndexOfSpace).trim()
+        return (number.toIntOrNull() ?: number.toDoubleOrNull() ?: number).toString()
     }
 
     private fun extractNumber(fileName: String, seriesName: String): String {

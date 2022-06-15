@@ -18,6 +18,7 @@ import com.home.reader.utils.Constants.SeriesExtra.ISSUE_DIR
 import com.home.reader.utils.coversPath
 import kotlinx.coroutines.launch
 import java.io.File
+import java.util.concurrent.Executors
 
 
 class IssuesAdapter(
@@ -27,6 +28,7 @@ class IssuesAdapter(
     private val parent: Activity
 ) : RecyclerView.Adapter<IssuesAdapter.IssueViewHolder>() {
 
+    private val imageLoaderExecutor = Executors.newFixedThreadPool(3)
     private var basePath: String = "${parent.filesDir}/${parent.packageName}"
     private var db = AppDatabase.invoke(parent)
 
@@ -44,11 +46,20 @@ class IssuesAdapter(
         val issueNumber = issue.issue
         holder.progress.max = issue.pagesCount - 1
         holder.progress.progress = issue.currentPage
-        holder.name.text = "$name #$issueNumber"
+        holder.name.text = if (issueNumber.isEmpty()) {
+            name
+        } else {
+            "$name #$issueNumber"
+        }
 
-        holder.preview.apply {
-            val cover = getCover(issue.id, layoutParams.width, layoutParams.height)
-            setImageBitmap(cover)
+        imageLoaderExecutor.submit {
+            val cover = getCover(
+                issue.id,
+                holder.preview.layoutParams.width,
+                holder.preview.layoutParams.height
+            )
+
+            holder.preview.setImageBitmap(cover)
         }
 
         holder.itemView.setOnClickListener {

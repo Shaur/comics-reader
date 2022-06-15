@@ -65,7 +65,7 @@ class SeriesAdapter(
             return
         }
 
-        val firstIssue = issues.first()
+        val firstIssue = issues.minByOrNull { it.issue }!!
         val cachedCover = cache[firstIssue.id]
 
         if (cachedCover != null) {
@@ -85,9 +85,16 @@ class SeriesAdapter(
     }
 
     fun addItem(item: SeriesWithIssues) {
-        series.add(item)
+        val existsSeriesIndex = series.indexOfFirst { it.series.id == item.series.id }
+        if(existsSeriesIndex != -1) {
+            series[existsSeriesIndex] = item
+            notifyItemChanged(existsSeriesIndex)
+        } else {
+            series.add(item)
+            notifyItemInserted(series.size - 1)
+        }
+
         readIssuesCount[item.series.id] = item.issues.count { issue -> issue.isRead() }
-        notifyItemInserted(series.size - 1)
     }
 
     private fun getCover(id: Long?, width: Int, height: Int): Bitmap? {

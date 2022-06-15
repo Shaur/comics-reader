@@ -72,8 +72,9 @@ class ImportComicsWorker(
         return with(meta) {
             var series = seriesDao.getSeriesByName(seriesName)
             if (series == null) {
-                val seriesId = seriesDao.insert(Series(name = seriesName))
-                series = Series(seriesId, seriesName)
+                series = Series(name = seriesName)
+                val seriesId = seriesDao.insert(series)
+                series = series.copy(id = seriesId)
             }
 
             var issue = issueDao.findBySeriesIdAndIssue(series.id!!, number)

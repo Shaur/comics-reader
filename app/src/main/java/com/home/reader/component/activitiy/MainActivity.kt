@@ -23,7 +23,6 @@ import com.home.reader.persistence.entity.SeriesWithIssues
 import com.home.reader.persistence.repository.SeriesRepository
 import com.home.reader.utils.*
 import com.home.reader.utils.Constants.COMICS_MIME_TYPES
-import com.home.reader.utils.Constants.RequestCodes.BACK_CODE
 import com.home.reader.utils.Constants.Sizes.PREVIEW_COVER_WIDTH_IN_DP
 import com.home.reader.utils.Constants.Sizes.PREVIEW_GATTER_WIDTH_ID_DP
 import kotlinx.coroutines.launch
@@ -94,36 +93,36 @@ class MainActivity : AppCompatActivity() {
     }
 
     private val openSeriesResult = registerForActivityResult(StartActivityForResult()) { result ->
-        if(result.resultCode == RESULT_CANCELED) {
+        if (result.resultCode == RESULT_CANCELED) {
             updateSeries()
         }
     }
 
     private var chooseFileLauncher = registerForActivityResult(StartActivityForResult()) { result ->
-        if (result.resultCode == BACK_CODE) {
-            updateSeries()
-        } else if (result.resultCode == RESULT_OK) {
-            val clipData = result.data?.clipData
-            val selectedFiles = if (clipData != null) {
-                (0 until clipData.itemCount).map { clipData.getItemAt(it).uri }
-            } else {
-                listOf(result.data?.data)
-            }
+        if (result.resultCode != RESULT_OK) {
+            return@registerForActivityResult
+        }
 
-            for (uri in selectedFiles) {
-                val data = Data.Builder()
-                    .putString(IMPORT_WORKER_URI_KEY, uri.toString())
-                    .build()
+        val clipData = result.data?.clipData
+        val selectedFiles = if (clipData != null) {
+            (0 until clipData.itemCount).map { clipData.getItemAt(it).uri }
+        } else {
+            listOf(result.data?.data)
+        }
 
-                val importComicsWorkerRequest = OneTimeWorkRequestBuilder<ImportComicsWorker>()
-                    .setInputData(data)
-                    .build()
+        for (uri in selectedFiles) {
+            val data = Data.Builder()
+                .putString(IMPORT_WORKER_URI_KEY, uri.toString())
+                .build()
 
-                workerManager.getWorkInfoByIdLiveData(importComicsWorkerRequest.id)
-                    .observe(this, importFileObserver)
+            val importComicsWorkerRequest = OneTimeWorkRequestBuilder<ImportComicsWorker>()
+                .setInputData(data)
+                .build()
 
-                workerManager.enqueue(importComicsWorkerRequest)
-            }
+            workerManager.getWorkInfoByIdLiveData(importComicsWorkerRequest.id)
+                .observe(this, importFileObserver)
+
+            workerManager.enqueue(importComicsWorkerRequest)
         }
     }
 

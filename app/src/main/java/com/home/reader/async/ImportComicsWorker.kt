@@ -5,10 +5,13 @@ import android.net.Uri
 import androidx.work.CoroutineWorker
 import androidx.work.Data
 import androidx.work.WorkerParameters
-import com.home.reader.component.dto.CbrMeta
+import com.home.reader.archive.ArchiveTool
+import com.home.reader.archive.ArchiveToolFactory
+import com.home.reader.component.dto.ArchiveMeta
 import com.home.reader.persistence.entity.Issue
 import com.home.reader.persistence.entity.Series
 import com.home.reader.utils.*
+import java.io.InputStream
 import java.nio.file.Files
 import java.nio.file.StandardCopyOption
 
@@ -25,12 +28,17 @@ class ImportComicsWorker(
 
     private val seriesDao = context.seriesDao()
     private val issueDao = context.issueDao()
+    private lateinit var archiveTool: ArchiveTool
 
     override suspend fun doWork(): Result {
         val uriString = inputData.getString(IMPORT_WORKER_URI_KEY)
         val uri = Uri.parse(uriString)
 
-        val meta = getMeta(uri) ?: return Result.failure()
+        val (fileName, input) = getFileInfo(uri) ?: return Result.failure()
+
+        archiveTool = ArchiveToolFactory(fileName).create()
+
+        val meta = archiveTool.getMeta(input)
         val (seriesId, issueId) = resolveIssueId(meta)
         importFile(uri, issueId)
 
@@ -49,7 +57,7 @@ class ImportComicsWorker(
             val issueDir = dataDir().resolve(issueId.toString())
 
             val input = applicationContext.contentResolver.openInputStream(uri) ?: return
-            CbrUtil.extract(input, issueDir)
+            archiveTool.extract(input, issueDir)
 
             val cover = coversPath().resolve("$issueId.jpg")
             val firstPage = (issueDir.listFiles() ?: arrayOf()).minByOrNull { it.name }
@@ -59,16 +67,16 @@ class ImportComicsWorker(
         }
     }
 
-    private fun getMeta(uri: Uri): CbrMeta? {
+    private fun getFileInfo(uri: Uri): Pair<String, InputStream>? {
         return with(applicationContext) {
             val fileName = getFileName(uri) ?: return null
             val input = contentResolver.openInputStream(uri) ?: return null
 
-            CbrUtil.getMeta(input, fileName)
+            return@with fileName to input
         }
     }
 
-    private suspend fun resolveIssueId(meta: CbrMeta): Pair<Long, Long> {
+    private suspend fun resolveIssueId(meta: ArchiveMeta): Pair<Long, Long> {
         return with(meta) {
             var series = seriesDao.getSeriesByName(seriesName)
             if (series == null) {

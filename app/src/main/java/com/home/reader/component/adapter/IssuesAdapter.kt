@@ -11,6 +11,8 @@ import android.widget.*
 import androidx.lifecycle.LifecycleCoroutineScope
 import androidx.recyclerview.widget.RecyclerView
 import com.home.reader.R
+import com.home.reader.component.ImageCache.cache
+import com.home.reader.component.ImageCache.imageLoaderExecutor
 import com.home.reader.component.activitiy.ReaderActivity
 import com.home.reader.persistence.AppDatabase
 import com.home.reader.persistence.entity.Issue
@@ -28,7 +30,6 @@ class IssuesAdapter(
     private val parent: Activity
 ) : RecyclerView.Adapter<IssuesAdapter.IssueViewHolder>() {
 
-    private val imageLoaderExecutor = Executors.newFixedThreadPool(3)
     private var basePath: String = "${parent.filesDir}/${parent.packageName}"
     private var db = AppDatabase.invoke(parent)
 
@@ -52,14 +53,20 @@ class IssuesAdapter(
             "$name #$issueNumber"
         }
 
-        imageLoaderExecutor.submit {
-            val cover = getCover(
-                issue.id,
-                holder.preview.layoutParams.width,
-                holder.preview.layoutParams.height
-            )
+        val cachedCover = cache[issue.id]
+        if(cachedCover != null) {
+            holder.preview.setImageBitmap(cachedCover)
+        } else {
+            imageLoaderExecutor.submit {
+                val cover = getCover(
+                    issue.id,
+                    holder.preview.layoutParams.width,
+                    holder.preview.layoutParams.height
+                )
 
-            holder.preview.setImageBitmap(cover)
+                cache.put(issue.id, cover)
+                holder.preview.setImageBitmap(cover)
+            }
         }
 
         holder.itemView.setOnClickListener {

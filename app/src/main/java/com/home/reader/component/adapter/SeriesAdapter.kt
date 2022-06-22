@@ -4,7 +4,6 @@ import android.app.Activity
 import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
-import android.util.LruCache
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -13,16 +12,17 @@ import android.widget.TextView
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.recyclerview.widget.RecyclerView
 import com.home.reader.R
+import com.home.reader.component.ImageCache.cache
+import com.home.reader.component.ImageCache.imageLoaderExecutor
 import com.home.reader.component.activitiy.IssuesActivity
 import com.home.reader.component.activitiy.MainActivity
 import com.home.reader.persistence.entity.SeriesWithIssues
 import com.home.reader.utils.coversPath
 import java.io.File
-import java.util.concurrent.Executors
 
 
 class SeriesAdapter(
-    private var series: MutableList<SeriesWithIssues>,
+    private val series: MutableList<SeriesWithIssues>,
     private val parent: Activity,
 ) : RecyclerView.Adapter<SeriesAdapter.SeriesViewHolder>() {
 
@@ -31,19 +31,6 @@ class SeriesAdapter(
     }.toMutableMap()
 
     private var basePath: String = "${parent.filesDir}/${parent.packageName}"
-    private val imageLoaderExecutor = Executors.newFixedThreadPool(3)
-    private val cache: LruCache<Long, Bitmap>
-
-    init {
-        val maxMemory = (Runtime.getRuntime().maxMemory() / 1024).toInt()
-        val cacheSize = maxMemory / 8
-        cache = object : LruCache<Long, Bitmap>(cacheSize) {
-
-            override fun sizeOf(key: Long, bitmap: Bitmap): Int {
-                return bitmap.byteCount / 1024
-            }
-        }
-    }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): SeriesViewHolder {
         val v = LayoutInflater
@@ -86,15 +73,14 @@ class SeriesAdapter(
 
     fun addItem(item: SeriesWithIssues) {
         val existsSeriesIndex = series.indexOfFirst { it.series.id == item.series.id }
-        if(existsSeriesIndex != -1) {
+        readIssuesCount[item.series.id] = item.issues.count { issue -> issue.isRead() }
+        if (existsSeriesIndex != -1) {
             series[existsSeriesIndex] = item
             notifyItemChanged(existsSeriesIndex)
         } else {
             series.add(item)
             notifyItemInserted(series.size - 1)
         }
-
-        readIssuesCount[item.series.id] = item.issues.count { issue -> issue.isRead() }
     }
 
     private fun getCover(id: Long?, width: Int, height: Int): Bitmap? {

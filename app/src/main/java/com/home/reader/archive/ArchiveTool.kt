@@ -8,7 +8,8 @@ import kotlin.math.min
 abstract class ArchiveTool(protected val fileName: String) {
 
     companion object {
-        private val REGEX = Regex("^[A-Za-z\\d)(.\\-\" ']+ \\d{1,3}")
+        private val SERIES_NAME_REGEX = Regex("^[A-Za-z\\d)(.\\-\" ']+ \\d{1,3}")
+        private val NUMBER_REGEX = "\\d+".toRegex()
     }
 
     abstract fun getMeta(input: InputStream): ArchiveMeta
@@ -17,7 +18,7 @@ abstract class ArchiveTool(protected val fileName: String) {
 
     protected fun extractSeriesNameFromFileName(fileName: String): String {
         val normalized = fileName.replace("_", " ")
-        val nameWithNumber = REGEX.find(normalized)?.value ?: fileName
+        val nameWithNumber = SERIES_NAME_REGEX.find(normalized)?.value ?: fileName
         val lastIndexOfSpace = nameWithNumber.lastIndexOf(" ")
         if (lastIndexOfSpace == -1) {
             return fileName
@@ -28,7 +29,7 @@ abstract class ArchiveTool(protected val fileName: String) {
 
     protected fun extractNumberFromFileName(fileName: String): String {
         val normalized = fileName.replace("_", " ")
-        val nameWithNumber = REGEX.find(normalized)?.value ?: fileName
+        val nameWithNumber = SERIES_NAME_REGEX.find(normalized)?.value ?: fileName
         val lastIndexOfSpace = nameWithNumber.lastIndexOf(" ")
         if (lastIndexOfSpace == -1) {
             return fileName
@@ -45,7 +46,9 @@ abstract class ArchiveTool(protected val fileName: String) {
             return ""
         }
 
-        val number = substring.substring(0, indexOfSpace).trim()
+        var number = substring.substring(0, indexOfSpace).trim()
+        number = NUMBER_REGEX.find(number)?.value ?: ""
+
         return (number.toIntOrNull() ?: number.toDoubleOrNull() ?: number).toString()
     }
 

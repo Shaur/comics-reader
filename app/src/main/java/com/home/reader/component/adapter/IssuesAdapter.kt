@@ -20,12 +20,11 @@ import com.home.reader.utils.Constants.SeriesExtra.ISSUE_DIR
 import com.home.reader.utils.coversPath
 import kotlinx.coroutines.launch
 import java.io.File
-import java.util.concurrent.Executors
 
 
 class IssuesAdapter(
     private var name: String?,
-    private var issues: List<Issue>,
+    private var issues: MutableList<Issue>,
     private var lifecycleScope: LifecycleCoroutineScope,
     private val parent: Activity
 ) : RecyclerView.Adapter<IssuesAdapter.IssueViewHolder>() {
@@ -108,7 +107,13 @@ class IssuesAdapter(
         popup.menuInflater.inflate(R.menu.issue_menu, popup.menu)
 
         popup.setOnMenuItemClickListener {
-            lifecycleScope.launch { db.issueDao().delete(issue) }
+            lifecycleScope.launch {
+                db.issueDao().delete(issue)
+
+                val index = issues.indexOf(issue)
+                issues.removeAt(index)
+                notifyItemChanged(index)
+            }
             File("$basePath/${issue.id}").deleteRecursively()
         }
 

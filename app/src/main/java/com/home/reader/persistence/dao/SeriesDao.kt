@@ -1,6 +1,7 @@
 package com.home.reader.persistence.dao
 
 import androidx.room.*
+import com.home.reader.persistence.entity.Issue
 import com.home.reader.persistence.entity.Series
 import com.home.reader.persistence.entity.SeriesWithIssues
 
@@ -8,8 +9,15 @@ import com.home.reader.persistence.entity.SeriesWithIssues
 interface SeriesDao {
 
     @Transaction
-    @Query("select * from series order by name")
-    suspend fun getAll(): MutableList<SeriesWithIssues>
+    @Query(
+        """
+            select *
+            from series
+                left join issues on series.id = issues.series_id
+            order by (pages_count - current_page - 1 = 0), name
+        """
+    )
+    suspend fun getAll(): Map<Series, List<Issue>>
 
     @Query("select * from series where name = :name")
     suspend fun getSeriesByName(name: String): Series?

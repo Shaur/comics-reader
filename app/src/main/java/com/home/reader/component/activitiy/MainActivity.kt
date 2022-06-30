@@ -73,6 +73,8 @@ class MainActivity : AppCompatActivity() {
     private fun updateSeries() {
         lifecycleScope.launch {
             seriesData.value = seriesDao().getAll()
+                .map { (series, issues) -> SeriesWithIssues(series, issues) }
+                .toMutableList()
         }
     }
 
@@ -92,10 +94,8 @@ class MainActivity : AppCompatActivity() {
         openSeriesResult.launch(intent)
     }
 
-    private val openSeriesResult = registerForActivityResult(StartActivityForResult()) { result ->
-        if (result.resultCode == RESULT_CANCELED) {
-            updateSeries()
-        }
+    private val openSeriesResult = registerForActivityResult(StartActivityForResult()) {
+        updateSeries()
     }
 
     private var chooseFileLauncher = registerForActivityResult(StartActivityForResult()) { result ->

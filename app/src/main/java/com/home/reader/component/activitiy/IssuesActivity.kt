@@ -39,7 +39,7 @@ class IssuesActivity : AppCompatActivity() {
 
             binding.issuesView.adapter = IssuesAdapter(
                 series.series.name,
-                series.issues.sortedBy { it.issue },
+                series.issues.sortedBy { it.issue }.toMutableList(),
                 lifecycleScope,
                 this@IssuesActivity
             )

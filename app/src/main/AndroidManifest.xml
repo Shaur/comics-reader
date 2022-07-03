@@ -16,7 +16,7 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.AppCompat">
         <activity
-            android:name=".component.activitiy.MainActivity"
+            android:name=".component.activity.MainActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -24,9 +24,9 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".component.activitiy.IssuesActivity" />
+        <activity android:name=".component.activity.IssuesActivity" />
         <activity
-            android:name=".component.activitiy.ReaderActivity"
+            android:name=".component.activity.ReaderActivity"
             android:theme="@style/Theme.AppCompat.NoActionBar" />
     </application>
 

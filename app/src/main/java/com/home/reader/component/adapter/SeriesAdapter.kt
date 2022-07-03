@@ -14,8 +14,8 @@ import androidx.recyclerview.widget.RecyclerView
 import com.home.reader.R
 import com.home.reader.component.ImageCache.cache
 import com.home.reader.component.ImageCache.imageLoaderExecutor
-import com.home.reader.component.activitiy.IssuesActivity
-import com.home.reader.component.activitiy.MainActivity
+import com.home.reader.component.activity.IssuesActivity
+import com.home.reader.component.activity.MainActivity
 import com.home.reader.persistence.entity.SeriesWithIssues
 import com.home.reader.utils.coversPath
 import java.io.File

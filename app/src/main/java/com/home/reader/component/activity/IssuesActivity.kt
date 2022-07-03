@@ -1,4 +1,4 @@
-package com.home.reader.component.activitiy
+package com.home.reader.component.activity
 
 import android.content.Intent
 import android.os.Bundle
@@ -16,6 +16,7 @@ import kotlin.properties.Delegates
 class IssuesActivity : AppCompatActivity() {
 
     private var seriesId by Delegates.notNull<Long>()
+    private var spanCount by Delegates.notNull<Int>()
     private lateinit var binding: ActivityIssuesBinding
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -25,8 +26,7 @@ class IssuesActivity : AppCompatActivity() {
 
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
 
-        val spanCount = (widthInDp() / (110 + 10)).toInt()
-        binding.issuesView.layoutManager = GridLayoutManager(this, spanCount)
+        spanCount = (widthInDp() / (110 + 10)).toInt()
 
         seriesId = intent.getLongExtra(SERIES_ID, -1L)
         update()
@@ -43,6 +43,7 @@ class IssuesActivity : AppCompatActivity() {
                 lifecycleScope,
                 this@IssuesActivity
             )
+            binding.issuesView.layoutManager = GridLayoutManager(this@IssuesActivity, spanCount)
         }
     }
 

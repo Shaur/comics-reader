@@ -1,4 +1,4 @@
-package com.home.reader.component.activitiy
+package com.home.reader.component.activity
 
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory

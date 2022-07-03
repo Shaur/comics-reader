@@ -1,4 +1,4 @@
-package com.home.reader.component.activitiy
+package com.home.reader.component.activity
 
 import android.content.Intent
 import android.os.Bundle
@@ -20,20 +20,20 @@ import com.home.reader.async.ImportComicsWorker.Companion.IMPORT_WORKER_URI_KEY
 import com.home.reader.component.adapter.SeriesAdapter
 import com.home.reader.databinding.ActivityMainBinding
 import com.home.reader.persistence.entity.SeriesWithIssues
-import com.home.reader.persistence.repository.SeriesRepository
 import com.home.reader.utils.*
 import com.home.reader.utils.Constants.COMICS_MIME_TYPES
 import com.home.reader.utils.Constants.Sizes.PREVIEW_COVER_WIDTH_IN_DP
 import com.home.reader.utils.Constants.Sizes.PREVIEW_GATTER_WIDTH_ID_DP
 import kotlinx.coroutines.launch
+import kotlin.properties.Delegates
 
 
 class MainActivity : AppCompatActivity() {
 
     private val seriesData = MutableLiveData<MutableList<SeriesWithIssues>>()
-    private lateinit var seriesRepository: SeriesRepository
     private lateinit var binding: ActivityMainBinding
     private lateinit var workerManager: WorkManager
+    private var spanCount by Delegates.notNull<Int>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -43,15 +43,12 @@ class MainActivity : AppCompatActivity() {
 
         createNecessaryFolders()
 
-        seriesRepository = SeriesRepository(seriesDao(), issueDao())
         workerManager = WorkManager.getInstance(applicationContext)
 
-        val spanCount =
-            (widthInDp() / (PREVIEW_COVER_WIDTH_IN_DP + PREVIEW_GATTER_WIDTH_ID_DP)).toInt()
-
-        binding.seriesView.layoutManager = GridLayoutManager(this, spanCount)
+        spanCount = (widthInDp() / (PREVIEW_COVER_WIDTH_IN_DP + PREVIEW_GATTER_WIDTH_ID_DP)).toInt()
 
         seriesData.observe(this) {
+            binding.seriesView.layoutManager = GridLayoutManager(this, spanCount)
             binding.seriesView.adapter = SeriesAdapter(it, this)
         }
 
@@ -95,7 +92,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private val openSeriesResult = registerForActivityResult(StartActivityForResult()) {
-        updateSeries()
+        this@MainActivity.recreate()
     }
 
     private var chooseFileLauncher = registerForActivityResult(StartActivityForResult()) { result ->

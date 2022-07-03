@@ -13,7 +13,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.home.reader.R
 import com.home.reader.component.ImageCache.cache
 import com.home.reader.component.ImageCache.imageLoaderExecutor
-import com.home.reader.component.activitiy.ReaderActivity
+import com.home.reader.component.activity.ReaderActivity
 import com.home.reader.persistence.AppDatabase
 import com.home.reader.persistence.entity.Issue
 import com.home.reader.utils.Constants.SeriesExtra.ISSUE_DIR

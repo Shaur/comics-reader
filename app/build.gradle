@@ -8,7 +8,7 @@ android {
 
     defaultConfig {
         applicationId "com.home.reader"
-        minSdkVersion 29
+        minSdkVersion 31
         targetSdkVersion 32
         versionCode 1
         versionName "1.0"
@@ -37,7 +37,7 @@ android {
 dependencies {
     def roomVersion = "2.5.0-alpha02"
     def roomCompilerVersion = "1.1.1"
-    def lifecycleVersion = "2.4.1"
+    def lifecycleVersion = "2.5.0"
 
     implementation fileTree(dir: "libs", include: ["*.jar"])
     implementation 'com.github.junrar:junrar:7.5.2'

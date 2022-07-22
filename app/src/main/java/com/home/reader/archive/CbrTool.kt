@@ -1,17 +1,35 @@
 package com.home.reader.archive
 
+import com.github.junrar.Archive
 import com.github.junrar.Junrar
 import com.home.reader.component.dto.ArchiveMeta
 import java.io.File
+import java.io.FileOutputStream
 import java.io.InputStream
+import java.nio.file.Files
 
 class CbrTool(fileName: String) : ArchiveTool(fileName) {
 
     override fun getMeta(input: InputStream): ArchiveMeta {
-        val descriptors = Junrar.getContentsDescription(input)
-            .filter { !it.path.endsWith("xml") }
+        val xmlFile = Files.createTempFile("ComicsInfo" + System.currentTimeMillis(), "xml").toFile()
+        val archive = Archive(input)
+        val descriptors = archive.fileHeaders
+            .map {
+                if (it.fileName.contains("ComicInfo.xml")) {
+                    archive.extractFile(it, FileOutputStream(xmlFile))
+                }
 
-        val firstPageName = descriptors.first().path
+                it.fileName
+            }
+
+        if (xmlFile.length() > 0) {
+            val meta = extractMetaFromXml(xmlFile)
+            xmlFile.delete()
+
+            return meta.copy(pagesCount = archive.count() - 1)
+        }
+
+        val firstPageName = descriptors.first()
         val seriesName = listOf(
             crossNames(fileName, firstPageName).trim(),
             extractSeriesNameFromFileName(fileName)

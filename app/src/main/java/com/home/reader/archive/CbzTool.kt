@@ -2,18 +2,32 @@ package com.home.reader.archive
 
 import com.home.reader.component.dto.ArchiveMeta
 import java.io.File
+import java.io.FileOutputStream
 import java.io.InputStream
+import java.nio.file.Files
 import java.util.zip.ZipEntry
 import java.util.zip.ZipInputStream
 
 class CbzTool(fileName: String) : ArchiveTool(fileName) {
 
     override fun getMeta(input: InputStream): ArchiveMeta {
-        val descriptors = ZipInputStream(input).use { zis ->
-            zis.seq()
-                .filter { !it.isDirectory && !it.name.endsWith("xml") }
-                .map { it.name }
-                .toList()
+        val zis = ZipInputStream(input)
+        val xmlFile = Files.createTempFile("ComicInfo" + System.currentTimeMillis(), "xml").toFile()
+        val descriptors = zis.seq()
+            .filter { !it.isDirectory }
+            .map {
+                if (it.name.contains("ComicInfo.xml")) {
+                    zis.copyTo(FileOutputStream(xmlFile))
+                }
+                it.name
+            }
+            .toList()
+
+        if (xmlFile.length() > 0) {
+            val meta = extractMetaFromXml(xmlFile)
+            xmlFile.delete()
+
+            return meta.copy(pagesCount = descriptors.count() - 1)
         }
 
         val firstPageName = descriptors.first()
@@ -46,7 +60,7 @@ class CbzTool(fileName: String) : ArchiveTool(fileName) {
             zis.seq()
                 .filter { !it.isDirectory && !it.name.endsWith("xml") }
                 .forEach {
-                    val imageName = if(it.name.contains("/")) {
+                    val imageName = if (it.name.contains("/")) {
                         it.name.split("/").last()
                     } else {
                         it.name

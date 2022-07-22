@@ -24,4 +24,9 @@ object Constants {
         const val PREVIEW_COVER_WIDTH_IN_DP = 110
         const val PREVIEW_GATTER_WIDTH_ID_DP = 10
     }
+
+    object XmlPath {
+        const val SERIES = "/ComicInfo/Series/text()"
+        const val TITLE = "/ComicInfo/Title/text()"
+    }
 }

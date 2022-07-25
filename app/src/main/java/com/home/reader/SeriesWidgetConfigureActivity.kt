@@ -9,15 +9,27 @@ import android.graphics.BitmapFactory
 import android.os.Bundle
 import android.view.View
 import android.widget.EditText
+import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.lifecycleScope
+import androidx.recyclerview.widget.GridLayoutManager
+import com.home.reader.component.adapter.SeriesAdapter
 import com.home.reader.databinding.SeriesWidgetConfigureBinding
+import com.home.reader.persistence.entity.SeriesWithIssues
+import com.home.reader.utils.Constants
 import com.home.reader.utils.coversPath
+import com.home.reader.utils.seriesDao
+import com.home.reader.utils.widthInDp
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.launch
 import java.io.File
 
 /**
  * The configuration screen for the [SeriesWidget] AppWidget.
  */
-class SeriesWidgetConfigureActivity : Activity() {
+class SeriesWidgetConfigureActivity : AppCompatActivity() {
 
+    private val seriesData = MutableLiveData<MutableList<SeriesWithIssues>>()
     private var appWidgetId = AppWidgetManager.INVALID_APPWIDGET_ID
     private lateinit var appWidgetText: EditText
     private lateinit var binding: SeriesWidgetConfigureBinding
@@ -54,14 +66,25 @@ class SeriesWidgetConfigureActivity : Activity() {
         appWidgetText = binding.appwidgetText
         binding.addButton.setOnClickListener(onClickListener)
 
+        val spanCount =
+            (widthInDp() / (Constants.Sizes.PREVIEW_COVER_WIDTH_IN_DP + Constants.Sizes.PREVIEW_GATTER_WIDTH_ID_DP)).toInt()
+
+        seriesData.observe(this) {
+            binding.seriesView.layoutManager = GridLayoutManager(this, spanCount)
+            binding.seriesView.adapter = SeriesAdapter(it, this)
+        }
+
         // Find the widget id from the intent.
         val intent = intent
         val extras = intent.extras
         if (extras != null) {
             appWidgetId = extras.getInt(
-                AppWidgetManager.EXTRA_APPWIDGET_ID, AppWidgetManager.INVALID_APPWIDGET_ID
+                AppWidgetManager.EXTRA_APPWIDGET_ID,
+                AppWidgetManager.INVALID_APPWIDGET_ID
             )
         }
+
+        updateSeries()
 
         // If this activity was started with an intent without an app widget ID, finish with an error.
         if (appWidgetId == AppWidgetManager.INVALID_APPWIDGET_ID) {
@@ -70,6 +93,14 @@ class SeriesWidgetConfigureActivity : Activity() {
         }
 
         appWidgetText.setText(loadTitlePref(this@SeriesWidgetConfigureActivity, appWidgetId))
+    }
+
+    private fun updateSeries() {
+        lifecycleScope.launch {
+            seriesData.value = seriesDao().getAll()
+                .map { (series, issues) -> SeriesWithIssues(series, issues) }
+                .toMutableList()
+        }
     }
 
 }

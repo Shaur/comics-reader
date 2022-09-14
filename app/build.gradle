@@ -31,13 +31,14 @@ android {
             excludes += ['META-INF/DEPENDENCIES', 'META-INF/LICENSE', 'META-INF/LICENSE.txt', 'META-INF/LICENSE.md', 'META-INF/license.txt', 'META-INF/NOTICE', 'META-INF/NOTICE.txt', 'META-INF/NOTICE.md', 'META-INF/notice.txt', 'META-INF/ASL2.0', 'META-INF/*.kotlin_module']
         }
     }
+    namespace 'com.home.reader'
 
 }
 
 dependencies {
     def roomVersion = "2.5.0-alpha02"
     def roomCompilerVersion = "1.1.1"
-    def lifecycleVersion = "2.5.0"
+    def lifecycleVersion = "2.5.1"
 
     implementation fileTree(dir: "libs", include: ["*.jar"])
     implementation 'com.github.junrar:junrar:7.5.2'
@@ -59,7 +60,7 @@ dependencies {
 
     implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
     implementation 'androidx.core:core-ktx:1.8.0'
-    implementation 'androidx.appcompat:appcompat:1.4.2'
+    implementation 'androidx.appcompat:appcompat:1.5.0'
     implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
     implementation 'com.google.android.material:material:1.6.1'
     testImplementation 'junit:junit:4.13.2'

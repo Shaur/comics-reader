@@ -12,6 +12,9 @@ interface IssueDao {
     @Query("select * from issues where series_id = :seriesId and issue = :issue")
     suspend fun findBySeriesIdAndIssue(seriesId: Long, issue: String): Issue?
 
+    @Query("select * from issues where series_id = :seriesId order by issue desc")
+    suspend fun findLastIssueBySeriesId(seriesId: Long): Issue?
+
     @Insert
     suspend fun insert(issue: Issue): Long
 

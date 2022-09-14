@@ -10,6 +10,7 @@ import android.view.WindowManager
 import android.widget.SeekBar
 import android.widget.SeekBar.*
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.view.WindowCompat
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Observer
 import androidx.lifecycle.lifecycleScope
@@ -20,6 +21,7 @@ import com.home.reader.component.event.reader.RightZone
 import com.home.reader.databinding.ActivityReaderBinding
 import com.home.reader.persistence.entity.Issue
 import com.home.reader.utils.Constants.SeriesExtra.ISSUE_DIR
+import com.home.reader.utils.Constants.SeriesExtra.SERIES_ID
 import com.home.reader.utils.issueDao
 import kotlinx.coroutines.launch
 import java.io.File
@@ -32,8 +34,9 @@ class ReaderActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        requestWindowFeature(Window.FEATURE_NO_TITLE)
+        supportRequestWindowFeature(Window.FEATURE_NO_TITLE)
 
+        WindowCompat.setDecorFitsSystemWindows(window, false)
         window.addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN)
         window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
 
@@ -45,15 +48,18 @@ class ReaderActivity : AppCompatActivity() {
             ?.setNext(leftZoneHandler)
             ?.setNext(rightZoneHandler)
 
+        val seriesId = intent.getLongExtra(SERIES_ID, -1)
         val id = intent.getLongExtra(ISSUE_DIR, -1)
-        if (id == -1L) {
+        if (id == -1L && seriesId == -1L) {
             return
         }
 
-        pages = File("$filesDir/$packageName/$id")
-            .listFiles()?.let {
-                it.sortedBy { file -> file.name }
-            } ?: ArrayList()
+        if (seriesId != -1L) {
+            lifecycleScope.launch { initSeriesReaderMode(seriesId) }
+            return
+        }
+
+        initPages(id)
 
         currentIssue.observe(this, pageUpdateObserver)
 
@@ -67,6 +73,29 @@ class ReaderActivity : AppCompatActivity() {
             currentIssue.value = issueDao().findById(id)
             binding.currentPage.setOnTouchListener(touchPageListener)
         }
+    }
+
+    private suspend fun initSeriesReaderMode(seriesId: Long) {
+        val id = issueDao().findLastIssueBySeriesId(seriesId)?.id!!
+        initPages(id)
+
+        currentIssue.observe(this, pageUpdateObserver)
+
+        with(binding.readingProgress) {
+            max = pages.size - 1
+            progress = currentIssue.value?.currentPage ?: 0
+            setOnSeekBarChangeListener(progressBarUpdater)
+        }
+
+        currentIssue.value = issueDao().findById(id)
+        binding.currentPage.setOnTouchListener(touchPageListener)
+    }
+
+    private fun initPages(issueId: Long) {
+        pages = File("$filesDir/$packageName/$issueId")
+            .listFiles()?.let {
+                it.sortedBy { file -> file.name }
+            } ?: ArrayList()
     }
 
     private val touchPageListener = { v: View, event: MotionEvent ->
@@ -132,7 +161,7 @@ class ReaderActivity : AppCompatActivity() {
     }
 
     private val centerZoneHandler = CenterZone(-1) {
-        if(binding.readingProgressContainer.visibility == VISIBLE) {
+        if (binding.readingProgressContainer.visibility == VISIBLE) {
             binding.readingProgressContainer.visibility = INVISIBLE
         } else {
             binding.readingProgressContainer.visibility = VISIBLE

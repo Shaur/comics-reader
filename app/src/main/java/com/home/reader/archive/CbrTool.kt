@@ -29,13 +29,7 @@ class CbrTool(fileName: String) : ArchiveTool(fileName) {
             return meta.copy(pagesCount = archive.count() - 1)
         }
 
-        val firstPageName = descriptors.first()
-        val seriesName = listOf(
-            crossNames(fileName, firstPageName).trim(),
-            extractSeriesNameFromFileName(fileName)
-        )
-            .filter { it != fileName && it.isNotEmpty() }
-            .minByOrNull { it.length } ?: fileName
+        val seriesName = extractSeriesNameFromFileName(fileName)
 
         val number = listOf(
             extractNumber(fileName, seriesName),

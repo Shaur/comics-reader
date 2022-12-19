@@ -17,15 +17,17 @@ import com.home.reader.utils.coversPath
 import java.io.File
 
 abstract class AbstractSeriesAdapter(
-    protected val series: MutableList<SeriesWithIssues>,
+    series: MutableList<SeriesWithIssues>,
     protected val parent: Activity,
 ) : RecyclerView.Adapter<AbstractSeriesAdapter.SeriesViewHolder>() {
 
     abstract fun onSeriesClick(seriesId: Long?): View.OnClickListener
 
-    private val readIssuesCount = series.associate {
-        it.series.id to it.issues.count { issue -> issue.isRead() }
-    }.toMutableMap()
+    protected val series = series.filter { it.issues.isNotEmpty() }.toMutableList()
+
+    private val readIssuesCount = series
+        .associate { it.series.id to it.issues.count { issue -> issue.isRead() } }
+        .toMutableMap()
 
     private var basePath: String = "${parent.filesDir}/${parent.packageName}"
 

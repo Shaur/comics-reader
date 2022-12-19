@@ -23,6 +23,7 @@ abstract class ArchiveTool(protected val fileName: String) {
 
     private val xpath: XPath = XPathFactory.newInstance().newXPath()
     private val titleExpr: XPathExpression = xpath.compile("/ComicInfo/Title/text()")
+    private val numberExpr: XPathExpression = xpath.compile("/ComicInfo/Number/text()")
     private val seriesExpr: XPathExpression = xpath.compile("/ComicInfo/Series/text()")
 
     abstract fun getMeta(input: InputStream): ArchiveMeta
@@ -44,7 +45,11 @@ abstract class ArchiveTool(protected val fileName: String) {
         val document = xmlBuilder.parse(xmlFile)
 
         val title = seriesExpr.evaluate(document, XPathConstants.STRING) as String
-        val number = titleExpr.evaluate(document, XPathConstants.STRING) as String
+        var number = titleExpr.evaluate(document, XPathConstants.STRING) as String
+        if (number.isEmpty()) {
+            number = numberExpr.evaluate(document, XPathConstants.STRING) as String
+        }
+
         return ArchiveMeta(
             seriesName = title,
             number = extractFirstNumber(number),
@@ -77,7 +82,7 @@ abstract class ArchiveTool(protected val fileName: String) {
         return (number.toIntOrNull() ?: number.toDoubleOrNull() ?: number).toString()
     }
 
-    protected fun extractFirstNumber(str: String): String {
+    private fun extractFirstNumber(str: String): String {
         val number = NUMBER_REGEX.find(str)?.value ?: ""
 
         return (number.toIntOrNull() ?: number.toDoubleOrNull() ?: number).toString()

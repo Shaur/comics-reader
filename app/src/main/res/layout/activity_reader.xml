@@ -5,25 +5,40 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <ImageView
-        android:id="@+id/currentPage"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        android:background="#000000"
-        android:scaleType="fitCenter"
+    <FrameLayout
+        android:id="@+id/pageContainer"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        tools:srcCompat="@tools:sample/backgrounds/scenic" />
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <ImageView
+            android:id="@+id/currentPage"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:background="#000000"
+            android:scaleType="fitCenter"
+            android:translationZ="2dp"
+            tools:srcCompat="@tools:sample/backgrounds/scenic" />
+
+        <ImageView
+            android:id="@+id/shufflePage"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:background="#000000"
+            android:scaleType="fitCenter"
+            android:translationZ="1dp"
+            tools:srcCompat="@tools:sample/backgrounds/scenic" />
+
+    </FrameLayout>
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/readingProgressContainer"
         android:layout_width="match_parent"
         android:layout_height="50dp"
         android:visibility="invisible"
-        app:layout_constraintBottom_toBottomOf="@id/currentPage"
-        app:layout_constraintEnd_toEndOf="@id/currentPage">
+        app:layout_constraintBottom_toBottomOf="@id/pageContainer"
+        app:layout_constraintEnd_toEndOf="@id/pageContainer">
 
         <TextView
             android:id="@+id/currentPageNumber"

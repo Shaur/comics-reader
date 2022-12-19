@@ -29,10 +29,12 @@ class SeriesWidgetAdapter(
             val views = RemoteViews(parent.packageName, widgetLayoutId)
 
             views.setBitmap(R.id.seriesCover, "setImageBitmap", getCover(parent, coverId, 110, 177))
+            views.setTextViewText(R.id.seriesName, swi.series.name ?: "")
 
             val intent = Intent(parent, ReaderActivity::class.java).apply {
                 putExtra(SERIES_ID, seriesId)
             }
+
             val pendingIntent = PendingIntent.getActivity(parent, appWidgetId, intent, PendingIntent.FLAG_IMMUTABLE)
             views.setOnClickPendingIntent(R.id.seriesCover, pendingIntent)
 

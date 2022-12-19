@@ -3,21 +3,18 @@ package com.home.reader.component.activity
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.os.Bundle
-import android.view.MotionEvent
-import android.view.View
-import android.view.Window
+import android.util.LruCache
+import android.view.WindowInsetsController
 import android.view.WindowManager
 import android.widget.SeekBar
-import android.widget.SeekBar.*
+import android.widget.SeekBar.OnSeekBarChangeListener
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.WindowCompat
+import androidx.core.view.WindowInsetsCompat
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Observer
 import androidx.lifecycle.lifecycleScope
-import com.home.reader.component.event.reader.CenterZone
-import com.home.reader.component.event.reader.DeadZone
-import com.home.reader.component.event.reader.LeftZone
-import com.home.reader.component.event.reader.RightZone
+import com.home.reader.component.event.reader.OnLeafListener
 import com.home.reader.databinding.ActivityReaderBinding
 import com.home.reader.persistence.entity.Issue
 import com.home.reader.utils.Constants.SeriesExtra.ISSUE_DIR
@@ -28,25 +25,23 @@ import java.io.File
 
 class ReaderActivity : AppCompatActivity() {
 
-    private var currentIssue = MutableLiveData<Issue>()
+    private lateinit var currentIssue: Issue
+    private var pageNumber = MutableLiveData<Int>()
     private lateinit var pages: List<File>
     private lateinit var binding: ActivityReaderBinding
+    private val cache = object : LruCache<Int, Bitmap>(5) {}
+
+    companion object {
+        private val IMAGE_OPTIONS = BitmapFactory.Options().apply {
+            this.inPreferredConfig = Bitmap.Config.ARGB_8888
+        }
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        supportRequestWindowFeature(Window.FEATURE_NO_TITLE)
-
-        WindowCompat.setDecorFitsSystemWindows(window, false)
-        window.addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN)
-        window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
 
         binding = ActivityReaderBinding.inflate(layoutInflater)
         setContentView(binding.root)
-
-        deadZoneHandler
-            .setNext(centerZoneHandler)
-            ?.setNext(leftZoneHandler)
-            ?.setNext(rightZoneHandler)
 
         val seriesId = intent.getLongExtra(SERIES_ID, -1)
         val id = intent.getLongExtra(ISSUE_DIR, -1)
@@ -61,34 +56,38 @@ class ReaderActivity : AppCompatActivity() {
 
         initPages(id)
 
-        currentIssue.observe(this, pageUpdateObserver)
+        pageNumber.observe(this, pageUpdateObserver)
 
         with(binding.readingProgress) {
             max = pages.size - 1
-            progress = currentIssue.value?.currentPage ?: 0
+            progress = pageNumber.value ?: 0
             setOnSeekBarChangeListener(progressBarUpdater)
         }
 
         lifecycleScope.launch {
-            currentIssue.value = issueDao().findById(id)
-            binding.currentPage.setOnTouchListener(touchPageListener)
+            currentIssue = issueDao().findById(id)!!
+            pageNumber.value = currentIssue.currentPage
+            binding.currentPage.setOnTouchListener(createOnLeafListener())
         }
+
+        configureSystemUI()
     }
 
     private suspend fun initSeriesReaderMode(seriesId: Long) {
         val id = issueDao().findLastIssueBySeriesId(seriesId)?.id!!
         initPages(id)
 
-        currentIssue.observe(this, pageUpdateObserver)
+        pageNumber.observe(this, pageUpdateObserver)
 
         with(binding.readingProgress) {
             max = pages.size - 1
-            progress = currentIssue.value?.currentPage ?: 0
+            progress = pageNumber.value ?: 0
             setOnSeekBarChangeListener(progressBarUpdater)
         }
 
-        currentIssue.value = issueDao().findById(id)
-        binding.currentPage.setOnTouchListener(touchPageListener)
+        currentIssue = issueDao().findById(id)!!
+        pageNumber.value = currentIssue.currentPage
+        binding.currentPage.setOnTouchListener(createOnLeafListener())
     }
 
     private fun initPages(issueId: Long) {
@@ -98,24 +97,62 @@ class ReaderActivity : AppCompatActivity() {
             } ?: ArrayList()
     }
 
-    private val touchPageListener = { v: View, event: MotionEvent ->
-        deadZoneHandler.handle(v, event.x, event.y)
-        v.performClick()
+    private fun configureSystemUI() {
+        WindowCompat.setDecorFitsSystemWindows(window, false)
+        window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
+        window.insetsController?.let { controller ->
+            controller.hide(WindowInsetsCompat.Type.systemBars())
+            controller.systemBarsBehavior =
+                WindowInsetsController.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
+        }
     }
 
-    private val pageUpdateObserver = Observer { issue: Issue ->
-        val i = issue.currentPage
-
-        val options = BitmapFactory.Options()
-        options.inPreferredConfig = Bitmap.Config.ARGB_8888
-
-        val bitmap = BitmapFactory.decodeFile(pages[i].path, options)
+    private val pageUpdateObserver = Observer { page: Int ->
+        val bitmap = loadPage(page)
         binding.currentPage.setImageBitmap(bitmap)
-        binding.readingProgress.progress = i
+        binding.currentPage.x = 0F
+        binding.readingProgress.progress = page
+
+        currentIssue.currentPage = page
 
         lifecycleScope.launch {
-            issueDao().update(issue)
+            issueDao().update(currentIssue)
         }
+    }
+
+    private fun createOnLeafListener() = OnLeafListener(
+        currentPage = pageNumber,
+        pagesCount = pages.size,
+        onSubPageLoad = {
+            val page = loadPage(it)
+            binding.shufflePage.setImageBitmap(page)
+        },
+        onSwipeLeft = {
+            pageNumber.value?.apply {
+                if (this < pages.size - 1) {
+                    pageNumber.value = this + 1
+                }
+            }
+        },
+        onSwipeRight = {
+            pageNumber.value?.apply {
+                if (this > 0) {
+                    pageNumber.value = this - 1
+                }
+            }
+        }
+    )
+
+    private fun loadPage(pageNumber: Int): Bitmap {
+        val bitmap = cache.get(pageNumber)
+        if (bitmap != null) {
+            return bitmap
+        }
+
+        val page = BitmapFactory.decodeFile(pages[pageNumber].path, IMAGE_OPTIONS)
+        cache.put(pageNumber, page)
+
+        return page
     }
 
     private val progressBarUpdater = object : OnSeekBarChangeListener {
@@ -125,9 +162,8 @@ class ReaderActivity : AppCompatActivity() {
             binding.currentPageNumber.text = i.toString()
             binding.currentPageNumber.x = seekBar.x + value + seekBar.thumbOffset / 2
 
-            currentIssue.value?.apply {
-                currentPage = i
-                currentIssue.value = this
+            pageNumber.value?.apply {
+                pageNumber.value = i
             }
         }
 
@@ -136,36 +172,4 @@ class ReaderActivity : AppCompatActivity() {
         override fun onStopTrackingTouch(seekBar: SeekBar) {}
     }
 
-    private val deadZoneHandler = DeadZone(0) {}
-
-    private val leftZoneHandler = LeftZone(1) {
-        binding.readingProgressContainer.visibility = INVISIBLE
-
-        currentIssue.value?.apply {
-            if (currentPage > 0) {
-                currentPage--
-                currentIssue.value = this
-            }
-        }
-    }
-
-    private val rightZoneHandler = RightZone(1) {
-        binding.readingProgressContainer.visibility = INVISIBLE
-
-        currentIssue.value?.apply {
-            if (currentPage < pages.size - 1) {
-                currentPage++
-                currentIssue.value = this
-            }
-        }
-    }
-
-    private val centerZoneHandler = CenterZone(-1) {
-        if (binding.readingProgressContainer.visibility == VISIBLE) {
-            binding.readingProgressContainer.visibility = INVISIBLE
-        } else {
-            binding.readingProgressContainer.visibility = VISIBLE
-        }
-
-    }
 }

@@ -2,7 +2,14 @@
 <menu xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <item android:id="@+id/remove"
+    <item
+        android:id="@+id/remove"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
         android:title="@string/remove_menu_title"
+        app:showAsAction="ifRoom" />
+    <item
+        android:id="@+id/markAsRead"
+        android:title="@string/mark_as_read_menu_title"
         app:showAsAction="ifRoom" />
 </menu>

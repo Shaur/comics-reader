@@ -78,9 +78,9 @@ class ImportComicsWorker(
 
     private suspend fun resolveIssueId(meta: ArchiveMeta): Pair<Long, Long> {
         return with(meta) {
-            var series = seriesDao.getSeriesByName(seriesName)
+            var series = seriesDao.getSeriesByNormalizeName(seriesName.toNormalizedName())
             if (series == null) {
-                series = Series(name = seriesName)
+                series = Series(name = seriesName, normalizeName = seriesName.toNormalizedName())
                 val seriesId = seriesDao.insert(series)
                 series = series.copy(id = seriesId)
             }

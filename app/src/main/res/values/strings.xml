@@ -1,8 +1,11 @@
 <resources>
     <string name="app_name">Reader</string>
     <string name="remove_menu_title">Remove</string>
+    <string name="mark_as_read_menu_title">Mark as read</string>
     <string name="appwidget_text">EXAMPLE</string>
     <string name="configure">Configure</string>
     <string name="add_widget">Add widget</string>
     <string name="app_widget_description">This is an app widget description</string>
+    <string name="current_page">Current page</string>
+    <string name="under_page">Under page</string>
 </resources>

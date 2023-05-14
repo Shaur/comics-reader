@@ -1,6 +1,7 @@
 package com.home.reader.component.event.reader
 
 import android.animation.ObjectAnimator
+import android.util.Log
 import android.view.MotionEvent
 import android.view.View
 import androidx.core.animation.doOnEnd
@@ -16,19 +17,21 @@ class OnLeafListener(
 ) : View.OnTouchListener {
 
     private var baseX: Float = 0f
-    private var isImageLoaded = false
+    private var startTime = 0L
+    private var currentLoadedPage = -1
 
     override fun onTouch(view: View, event: MotionEvent): Boolean {
         if (event.action == MotionEvent.ACTION_DOWN) {
             baseX = event.rawX
+            startTime = System.currentTimeMillis()
         }
 
         if (event.action == MotionEvent.ACTION_MOVE) {
-            if(!actionMove(view, event)) return false
+            if (!actionMove(view, event)) return false
         }
 
         if (event.action == MotionEvent.ACTION_UP) {
-            actionUp(view)
+            actionUp(view, event.x)
             view.performClick()
         }
 
@@ -39,11 +42,11 @@ class OnLeafListener(
         val deltaX = baseX - event.rawX
         val i = currentPage.value ?: 0
 
-        if (i == 0 && deltaX < 0) {
+        if (i == 0 && baseX < event.rawX) {
             return false
         }
 
-        if (i == pagesCount - 1 && deltaX > 0) {
+        if (i == pagesCount - 1 && baseX > event.rawX) {
             return false
         }
 
@@ -51,26 +54,31 @@ class OnLeafListener(
             view.x = view.x - deltaX
             baseX = event.rawX
 
-            if (!isImageLoaded) {
+            val pageNumber = i + (view.x / abs(view.x)).toInt()
+            if (currentLoadedPage != pageNumber) {
                 onSubPageLoad.invoke(i + (deltaX / abs(deltaX)).toInt())
-                isImageLoaded = true
+                currentLoadedPage = pageNumber
             }
         }
 
         return true
     }
 
-    private fun actionUp(view: View) {
+    private fun actionUp(view: View, eventX: Float) {
+        val vector = baseX - eventX
         baseX = 0f
-        isImageLoaded = false
+        currentLoadedPage = -1
         val screenWidth = (view.parent as View).width
 
-        if (view.x < 0 - screenWidth / 6) {
-            moveByX(view, -screenWidth, onSwipeLeft)
-        } else if (view.x < screenWidth / 6) {
-            moveByX(view, 0) {}
+        Log.i("", "Vector is $vector")
+        if (abs(vector) > 100) {
+            return if (vector < 0) {
+                moveByX(view, -screenWidth, onSwipeLeft)
+            } else {
+                moveByX(view, screenWidth, onSwipeRight)
+            }
         } else {
-            moveByX(view, screenWidth, onSwipeRight)
+            moveByX(view, 0) {}
         }
     }
 

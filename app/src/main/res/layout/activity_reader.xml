@@ -14,20 +14,22 @@
 
         <ImageView
             android:id="@+id/currentPage"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:background="#000000"
             android:scaleType="fitCenter"
             android:translationZ="2dp"
+            android:contentDescription="@string/current_page"
             tools:srcCompat="@tools:sample/backgrounds/scenic" />
 
         <ImageView
             android:id="@+id/shufflePage"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:background="#000000"
             android:scaleType="fitCenter"
             android:translationZ="1dp"
+            android:contentDescription="@string/under_page"
             tools:srcCompat="@tools:sample/backgrounds/scenic" />
 
     </FrameLayout>

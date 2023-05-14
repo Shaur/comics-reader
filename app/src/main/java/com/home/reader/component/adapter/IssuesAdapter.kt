@@ -53,7 +53,7 @@ class IssuesAdapter(
         }
 
         val cachedCover = cache[issue.id]
-        if(cachedCover != null) {
+        if (cachedCover != null) {
             holder.preview.setImageBitmap(cachedCover)
         } else {
             imageLoaderExecutor.submit {
@@ -108,10 +108,15 @@ class IssuesAdapter(
 
         popup.setOnMenuItemClickListener {
             lifecycleScope.launch {
-                db.issueDao().delete(issue)
-
                 val index = issues.indexOf(issue)
-                issues.removeAt(index)
+                if (it.itemId == R.id.remove) {
+                    db.issueDao().delete(issue)
+                    issues.removeAt(index)
+                } else {
+                    issue.currentPage = issue.pagesCount - 1
+                    db.issueDao().update(issue)
+                }
+
                 notifyItemChanged(index)
             }
             File("$basePath/${issue.id}").deleteRecursively()

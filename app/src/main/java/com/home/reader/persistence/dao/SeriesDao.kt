@@ -19,10 +19,13 @@ interface SeriesDao {
     )
     suspend fun getAll(): Map<Series, List<Issue>>
 
-    @Query("select * from series where name = :name")
+    @Query("select * from series where lower(name) = lower(:name)")
     suspend fun getSeriesByName(name: String): Series?
 
-    @Query("select id from series where name = :name")
+    @Query("select * from series where normalize_name = :normalizeName")
+    suspend fun getSeriesByNormalizeName(normalizeName: String): Series?
+
+    @Query("select id from series where lower(name) = lower(:name)")
     suspend fun getSeriesIdByName(name: String): Long?
 
     @Insert

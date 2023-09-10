@@ -16,16 +16,14 @@ import androidx.lifecycle.Observer
 import androidx.lifecycle.lifecycleScope
 import com.home.reader.component.event.reader.OnLeafListener
 import com.home.reader.databinding.ActivityReaderBinding
-import com.home.reader.persistence.entity.Issue
 import com.home.reader.utils.Constants.SeriesExtra.ISSUE_DIR
 import com.home.reader.utils.Constants.SeriesExtra.SERIES_ID
-import com.home.reader.utils.issueDao
 import kotlinx.coroutines.launch
 import java.io.File
 
 class ReaderActivity : AppCompatActivity() {
 
-    private lateinit var currentIssue: Issue
+//    private lateinit var currentIssue: Issue
     private var pageNumber = MutableLiveData<Int>()
     private lateinit var pages: List<File>
     private lateinit var binding: ActivityReaderBinding
@@ -65,8 +63,8 @@ class ReaderActivity : AppCompatActivity() {
         }
 
         lifecycleScope.launch {
-            currentIssue = issueDao().findById(id)!!
-            pageNumber.value = currentIssue.currentPage
+//            currentIssue = issueDao().findById(id)!!
+//            pageNumber.value = currentIssue.currentPage
             binding.currentPage.setOnTouchListener(createOnLeafListener())
         }
 
@@ -74,8 +72,8 @@ class ReaderActivity : AppCompatActivity() {
     }
 
     private suspend fun initSeriesReaderMode(seriesId: Long) {
-        val id = issueDao().findLastIssueBySeriesId(seriesId)?.id!!
-        initPages(id)
+//        val id = issueDao().findLastIssueBySeriesId(seriesId)?.id!!
+//        initPages(id)
 
         pageNumber.observe(this, pageUpdateObserver)
 
@@ -85,8 +83,8 @@ class ReaderActivity : AppCompatActivity() {
             setOnSeekBarChangeListener(progressBarUpdater)
         }
 
-        currentIssue = issueDao().findById(id)!!
-        pageNumber.value = currentIssue.currentPage
+//        currentIssue = issueDao().findById(id)!!
+//        pageNumber.value = currentIssue.currentPage
         binding.currentPage.setOnTouchListener(createOnLeafListener())
     }
 
@@ -113,11 +111,11 @@ class ReaderActivity : AppCompatActivity() {
         binding.currentPage.x = 0F
         binding.readingProgress.progress = page
 
-        currentIssue.currentPage = page
+//        currentIssue.currentPage = page
 
-        lifecycleScope.launch {
-            issueDao().update(currentIssue)
-        }
+//        lifecycleScope.launch {
+//            issueDao().update(currentIssue)
+//        }
     }
 
     private fun createOnLeafListener() = OnLeafListener(

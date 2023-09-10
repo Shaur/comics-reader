@@ -1,14 +1,11 @@
 package com.home.reader.utils
 
-object Constants {
-    const val CBR_CONTENT_TYPE = "application/x-cbr"
-    const val CBZ_CONTENT_TYPE = "application/x-cbz"
+import androidx.compose.ui.unit.dp
 
-    val COMICS_MIME_TYPES = arrayOf(CBR_CONTENT_TYPE, CBZ_CONTENT_TYPE)
+object Constants {
 
     object RequestCodes {
         const val READ_EXTERNAL_STORAGE_CODE = 100
-        const val BACK_CODE = 50
     }
 
     object SeriesExtra {
@@ -22,11 +19,21 @@ object Constants {
 
     object Sizes {
         const val PREVIEW_COVER_WIDTH_IN_DP = 110
+        val COVER_WIDTH = 110.dp
         const val PREVIEW_GATTER_WIDTH_ID_DP = 10
     }
 
-    object XmlPath {
-        const val SERIES = "/ComicInfo/Series/text()"
-        const val TITLE = "/ComicInfo/Title/text()"
+    object ArgumentsPlaceholder {
+        const val LAST_PAGE = "/{lastPage}"
+        const val CURRENT_PAGE = "/{currentPage}"
+        const val ISSUE_ID = "/{issueId}"
+        const val SERIES_ID = "/{seriesId}"
+    }
+
+    object Argument {
+        const val LAST_PAGE = "lastPage"
+        const val CURRENT_PAGE = "currentPage"
+        const val ISSUE_ID = "issueId"
+        const val SERIES_ID = "seriesId"
     }
 }

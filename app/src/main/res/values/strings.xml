@@ -1,5 +1,6 @@
 <resources>
     <string name="app_name">Reader</string>
+    <string name="empty_string" />
     <string name="remove_menu_title">Remove</string>
     <string name="mark_as_read_menu_title">Mark as read</string>
     <string name="appwidget_text">EXAMPLE</string>
@@ -8,4 +9,8 @@
     <string name="app_widget_description">This is an app widget description</string>
     <string name="current_page">Current page</string>
     <string name="under_page">Under page</string>
+
+    <string name="empty_login_error_msg">Login is empty</string>
+    <string name="empty_password_error_msg">Password is empty</string>
+    <string name="welcome">Welcome user</string>
 </resources>

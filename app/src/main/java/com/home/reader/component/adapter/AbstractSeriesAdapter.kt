@@ -11,25 +11,16 @@ import android.widget.TextView
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.recyclerview.widget.RecyclerView
 import com.home.reader.R
+import com.home.reader.api.dto.Series
 import com.home.reader.component.ImageCache
-import com.home.reader.persistence.entity.SeriesWithIssues
-import com.home.reader.utils.coversPath
-import java.io.File
+import java.net.URL
 
 abstract class AbstractSeriesAdapter(
-    series: MutableList<SeriesWithIssues>,
+    protected val series: MutableList<Series>,
     protected val parent: Activity,
 ) : RecyclerView.Adapter<AbstractSeriesAdapter.SeriesViewHolder>() {
 
     abstract fun onSeriesClick(seriesId: Long?): View.OnClickListener
-
-    protected val series = series.filter { it.issues.isNotEmpty() }.toMutableList()
-
-    private val readIssuesCount = series
-        .associate { it.series.id to it.issues.count { issue -> issue.isRead() } }
-        .toMutableMap()
-
-    private var basePath: String = "${parent.filesDir}/${parent.packageName}"
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): SeriesViewHolder {
         val v = LayoutInflater
@@ -40,60 +31,55 @@ abstract class AbstractSeriesAdapter(
     }
 
     override fun onBindViewHolder(holder: SeriesViewHolder, position: Int) {
-        val curSeries = series[position].series
-        val issues = series[position].issues
+        val curSeries = series[position]
+//        val issues = series[position].issues
 
         holder.text.text = curSeries.name
-        holder.counter.text = "Read ${readIssuesCount[curSeries.id]}/${issues.size}"
+        holder.counter.text = "Read ${curSeries.completedIssues}/${curSeries.issuesCount}"
         holder.tableRow.setOnClickListener(onSeriesClick(curSeries.id))
 
-        if (issues.isEmpty()) {
-            return
-        }
+//        if (issues.isEmpty()) {
+//            return
+//        }
 
-        val firstIssue = issues.minByOrNull { it.issue }!!
-        val cachedCover = ImageCache.cache[firstIssue.id]
+//        val firstIssue = issues.minByOrNull { it.issue }!!
+        val cachedCover = ImageCache.cache[curSeries.cover]
 
         if (cachedCover != null) {
             holder.seriesCover.setImageBitmap(cachedCover)
         } else {
             ImageCache.imageLoaderExecutor.submit {
                 val cover = getCover(
-                    firstIssue.id,
+                    curSeries.cover,
                     holder.seriesCover.layoutParams.width,
                     holder.seriesCover.layoutParams.height
                 )
 
-                ImageCache.cache.put(firstIssue.id, cover)
+                ImageCache.cache.put(curSeries.cover, cover)
                 holder.seriesCover.setImageBitmap(cover)
             }
         }
     }
 
-    fun addItem(item: SeriesWithIssues) {
-        val existsSeriesIndex = series.indexOfFirst { it.series.id == item.series.id }
-        readIssuesCount[item.series.id] = item.issues.count { issue -> issue.isRead() }
-        if (existsSeriesIndex != -1) {
-            series[existsSeriesIndex] = item
-            notifyItemChanged(existsSeriesIndex)
-        } else {
-            series.add(item)
-            notifyItemInserted(series.size - 1)
-        }
-    }
+//    fun addItem(item: SeriesWithIssues) {
+//        val existsSeriesIndex = series.indexOfFirst { it.series.id == item.series.id }
+//        readIssuesCount[item.series.id] = item.issues.count { issue -> issue.isRead() }
+//        if (existsSeriesIndex != -1) {
+//            series[existsSeriesIndex] = item
+//            notifyItemChanged(existsSeriesIndex)
+//        } else {
+//            series.add(item)
+//            notifyItemInserted(series.size - 1)
+//        }
+//    }
 
     private fun getCover(id: Long?, width: Int, height: Int): Bitmap? {
-        val dir = File("$basePath/${id}")
-        if (!dir.exists()) {
-            return null
-        }
-
-        val coverFile = parent.coversPath().resolve("$id.jpg").toFile()
+        val url = URL("http://192.168.0.103:8080/file/$id/0?size=medium")
 
         val options = BitmapFactory.Options()
         options.inPreferredConfig = Bitmap.Config.ARGB_8888
 
-        val bitmap = BitmapFactory.decodeFile(coverFile?.path, options)
+        val bitmap = BitmapFactory.decodeStream(url.openStream())
         return Bitmap.createScaledBitmap(bitmap, width, height, false)
     }
 

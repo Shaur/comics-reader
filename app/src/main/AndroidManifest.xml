@@ -5,47 +5,33 @@
     <uses-permission
         android:name="android.permission.WRITE_EXTERNAL_STORAGE"
         tools:ignore="ScopedStorage" />
+    <uses-permission android:name="android.permission.INTERNET" />
 
     <application
+        android:name=".ReaderApplication"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:largeHeap="true"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
-        android:theme="@style/Theme.AppCompat">
-        <receiver
-            android:name=".SeriesWidget"
-            android:exported="false">
-            <intent-filter>
-                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
-                <action android:name="com.home.reader.SeriesWidget.ACTION_RECEIVER_WIDGET" />
-            </intent-filter>
-
-            <meta-data
-                android:name="android.appwidget.provider"
-                android:resource="@xml/series_widget_info" />
-        </receiver>
+        android:theme="@style/AppTheme"
+        android:usesCleartextTraffic="true">
 
         <activity
-            android:name=".SeriesWidgetConfigureActivity"
-            android:exported="false">
-            <intent-filter>
-                <action android:name="android.appwidget.action.APPWIDGET_CONFIGURE" />
-            </intent-filter>
-        </activity>
-        <activity
-            android:name=".component.activity.MainActivity"
-            android:exported="true">
+            android:name=".component.activity.MainComposeActivity"
+            android:exported="true"
+            android:theme="@style/AppTheme">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity android:name=".component.activity.MainActivity" />
         <activity android:name=".component.activity.IssuesActivity" />
         <activity
             android:name=".component.activity.ReaderActivity"
-            android:theme="@style/Theme.AppCompat.NoActionBar" />
+            android:theme="@style/AppTheme" />
     </application>
 
 </manifest>

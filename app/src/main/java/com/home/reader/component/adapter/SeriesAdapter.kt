@@ -3,14 +3,14 @@ package com.home.reader.component.adapter
 import android.app.Activity
 import android.content.Intent
 import android.view.View
+import com.home.reader.api.dto.Series
 import com.home.reader.component.activity.IssuesActivity
 import com.home.reader.component.activity.MainActivity
-import com.home.reader.persistence.entity.SeriesWithIssues
 import com.home.reader.utils.Constants.SeriesExtra.SERIES_ID
 
 
 class SeriesAdapter(
-    series: MutableList<SeriesWithIssues>,
+    series: MutableList<Series>,
     parent: Activity,
 ) : AbstractSeriesAdapter(series, parent) {
 

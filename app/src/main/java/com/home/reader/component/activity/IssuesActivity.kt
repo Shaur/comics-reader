@@ -5,10 +5,8 @@ import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.GridLayoutManager
-import com.home.reader.component.adapter.IssuesAdapter
 import com.home.reader.databinding.ActivityIssuesBinding
 import com.home.reader.utils.Constants.SeriesExtra.SERIES_ID
-import com.home.reader.utils.seriesDao
 import com.home.reader.utils.widthInDp
 import kotlinx.coroutines.launch
 import kotlin.properties.Delegates
@@ -34,15 +32,15 @@ class IssuesActivity : AppCompatActivity() {
 
     private fun update() {
         lifecycleScope.launch {
-            val series = seriesDao().getSeriesById(seriesId)
-            supportActionBar?.title = series.series.name
+//            val series = seriesDao().getSeriesById(seriesId)
+//            supportActionBar?.title = series.series.name
 
-            binding.issuesView.adapter = IssuesAdapter(
-                series.series.name,
-                series.issues.sortedBy { it.issue.toDoubleOrNull() }.toMutableList(),
-                lifecycleScope,
-                this@IssuesActivity
-            )
+//            binding.issuesView.adapter = IssuesAdapter(
+//                series.series.name,
+//                series.issues,//.sortedBy { it.issue.toDoubleOrNull() }.toMutableList(),
+//                lifecycleScope,
+//                this@IssuesActivity
+//            )
             binding.issuesView.layoutManager = GridLayoutManager(this@IssuesActivity, spanCount)
         }
     }

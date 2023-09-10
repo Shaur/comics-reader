@@ -8,21 +8,10 @@ import android.net.Uri
 import android.util.DisplayMetrics
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
-import com.home.reader.persistence.AppDatabase
-import com.home.reader.persistence.dao.IssueDao
-import com.home.reader.persistence.dao.SeriesDao
 import com.home.reader.utils.Constants.Dirs.COVERS
 import java.io.File
 import java.nio.file.Path
 import java.nio.file.Paths
-
-fun Context.issueDao(): IssueDao {
-    return AppDatabase.invoke(this).issueDao()
-}
-
-fun Context.seriesDao(): SeriesDao {
-    return AppDatabase.invoke(this).seriesDao()
-}
 
 fun Context.widthInDp(): Float {
     val displayMetrics: DisplayMetrics = applicationContext.resources.displayMetrics

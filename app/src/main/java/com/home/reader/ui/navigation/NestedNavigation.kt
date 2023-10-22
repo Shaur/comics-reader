@@ -8,28 +8,9 @@ import androidx.navigation.navArgument
 import androidx.navigation.navigation
 import com.home.reader.ui.issues.screen.IssuesScreen
 import com.home.reader.ui.series.screen.SeriesScreen
-import com.home.reader.ui.login.screen.LoginScreen
 import com.home.reader.ui.reader.screen.ReaderScreen
 import com.home.reader.utils.Constants.Argument
 import com.home.reader.utils.Constants.ArgumentsPlaceholder
-
-fun NavGraphBuilder.unauthenticatedGraph(controller: NavController) {
-
-    navigation(
-        route = NavigationRoutes.Unauthenticated.NavigationRoute.route,
-        startDestination = NavigationRoutes.Unauthenticated.Login.route
-    ) {
-
-        composable(route = NavigationRoutes.Unauthenticated.Login.route) {
-            LoginScreen(
-                onNavigateToAuthenticatedRoute = {
-                    controller.navigate(route = NavigationRoutes.Authenticated.NavigationRoute.route)
-                }
-            )
-        }
-
-    }
-}
 
 fun NavGraphBuilder.authenticatedGraph(controller: NavController) {
 
@@ -39,21 +20,24 @@ fun NavGraphBuilder.authenticatedGraph(controller: NavController) {
     ) {
         composable(route = NavigationRoutes.Authenticated.Series.route) {
             SeriesScreen(
-                onNavigateToIssuesScreen = {
-                    controller.navigate(route = NavigationRoutes.Authenticated.Issues.route + "/$it")
+                onNavigateToIssuesScreen = { id, name ->
+                    controller.navigate(route = NavigationRoutes.Authenticated.Issues.route + "/$id/$name")
                 }
             )
         }
 
         composable(
-            route = NavigationRoutes.Authenticated.Issues.route + ArgumentsPlaceholder.SERIES_ID,
+            route = NavigationRoutes.Authenticated.Issues.route + ArgumentsPlaceholder.SERIES_ID + ArgumentsPlaceholder.SERIES_NAME,
             arguments = listOf(
-                navArgument(Argument.SERIES_ID) { type = NavType.LongType; nullable = false }
+                navArgument(Argument.SERIES_ID) { type = NavType.LongType; nullable = false },
+                navArgument(Argument.SERIES_NAME) { type = NavType.StringType; nullable = false }
             )
         ) {
             val seriesId = it.arguments?.getLong(Argument.SERIES_ID)!!
+            val seriesName = it.arguments?.getString(Argument.SERIES_NAME, "")!!
             IssuesScreen(
                 seriesId = seriesId,
+                seriesName = seriesName,
                 onNavigateToReaderScreen = { id, currentPage, lastPage ->
                     controller.navigate(route = NavigationRoutes.Authenticated.Reader.route + "/$id/$currentPage/$lastPage")
                 }

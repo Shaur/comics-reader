@@ -59,14 +59,8 @@ class CbzTool(fileName: String) : ArchiveTool(fileName) {
         ZipInputStream(input).use { zis ->
             zis.seq()
                 .filter { !it.isDirectory && !it.name.endsWith("xml") }
-                .forEach {
-                    val imageName = if (it.name.contains("/")) {
-                        it.name.split("/").last()
-                    } else {
-                        it.name
-                    }
-
-                    val output = destination.resolve(imageName)
+                .forEachIndexed { index, _ ->
+                    val output = destination.resolve("$index.jpg")
                     zis.copyTo(output.outputStream())
                 }
         }

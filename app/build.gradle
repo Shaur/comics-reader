@@ -4,7 +4,7 @@ apply plugin: 'kotlin-kapt'
 
 android {
     compileSdkVersion 34
-    buildToolsVersion '33.0.0'
+    buildToolsVersion '33.0.1'
 
     defaultConfig {
         applicationId "com.home.reader"
@@ -47,7 +47,7 @@ android {
 dependencies {
     def roomVersion = "2.5.2"
     def roomCompilerVersion = "1.1.1"
-    def lifecycleVersion = "2.6.1"
+    def lifecycleVersion = "2.6.2"
 
     implementation fileTree(dir: "libs", include: ["*.jar"])
     implementation 'com.github.junrar:junrar:7.5.4'
@@ -64,11 +64,22 @@ dependencies {
     implementation "androidx.lifecycle:lifecycle-runtime-ktx:$lifecycleVersion"
     implementation "androidx.lifecycle:lifecycle-livedata-ktx:$lifecycleVersion"
 
-    implementation 'androidx.navigation:navigation-compose:2.7.0-beta02'
+    implementation "com.google.accompanist:accompanist-permissions:0.32.0"
+
+    implementation 'androidx.navigation:navigation-compose:2.7.2'
     implementation 'androidx.compose.material3:material3:1.1.1'
-    implementation 'androidx.compose.material:material:1.4.3'
-    implementation 'androidx.compose.ui:ui-tooling-preview:1.4.3'
-    debugImplementation 'androidx.compose.ui:ui-tooling:1.4.3'
+    implementation 'androidx.compose.material:material:1.5.1'
+    implementation 'androidx.compose.ui:ui-tooling-preview:1.5.1'
+    debugImplementation 'androidx.compose.ui:ui-tooling:1.5.1'
+
+    //Image loader
+    implementation "io.coil-kt:coil-compose:2.4.0"
+
+    implementation 'androidx.navigation:navigation-compose:2.7.2'
+    implementation 'androidx.compose.material3:material3:1.1.1'
+    implementation 'androidx.compose.material:material:1.5.1'
+    implementation 'androidx.compose.ui:ui-tooling-preview:1.5.1'
+    debugImplementation 'androidx.compose.ui:ui-tooling:1.5.1'
 
     //For REST api
     implementation 'com.squareup.okhttp3:okhttp:5.0.0-alpha.11'
@@ -77,8 +88,8 @@ dependencies {
     //Image loader
     implementation "io.coil-kt:coil-compose:2.4.0"
 
-    implementation "org.jetbrains.kotlin:kotlin-stdlib:1.9.0"
-    implementation 'androidx.core:core-ktx:1.12.0-alpha05'
+    implementation "org.jetbrains.kotlin:kotlin-stdlib:1.9.10"
+    implementation 'androidx.core:core-ktx:1.12.0'
     implementation 'androidx.appcompat:appcompat:1.6.1'
     implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
     implementation 'com.google.android.material:material:1.9.0'

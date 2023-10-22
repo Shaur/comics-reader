@@ -6,38 +6,31 @@ import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import com.home.reader.ReaderApplication
 import com.home.reader.ui.issues.viewmodel.IssuesViewModel
-import com.home.reader.ui.login.viewmodel.LoginViewModel
 import com.home.reader.ui.reader.viewmodel.ReaderViewModel
 import com.home.reader.ui.series.viewmodel.SeriesViewModel
 
 object AppViewModelProvider {
     val Factory = viewModelFactory {
-        initializer {
-            LoginViewModel(
-                repository = readerApplication().container.credentialsRepository,
-                api = readerApplication().container.api,
-                globalState = readerApplication().container.globalSate
-            )
-        }
 
         initializer {
             SeriesViewModel(
-                api = readerApplication().container.api,
-                globalState = readerApplication().container.globalSate
+                context = readerApplication().applicationContext,
+                repository = readerApplication().container.seriesRepository,
+                issueRepository = readerApplication().container.issueRepository
             )
         }
 
         initializer {
             IssuesViewModel(
-                api = readerApplication().container.api,
-                globalState = readerApplication().container.globalSate
+                context = readerApplication().applicationContext,
+                repository = readerApplication().container.issueRepository
             )
         }
 
         initializer {
             ReaderViewModel(
-                api = readerApplication().container.api,
-                globalState = readerApplication().container.globalSate
+                context = readerApplication().applicationContext,
+                issueRepository = readerApplication().container.issueRepository
             )
         }
     }

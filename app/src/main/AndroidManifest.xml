@@ -17,21 +17,27 @@
         android:theme="@style/AppTheme"
         android:usesCleartextTraffic="true">
 
+        <provider
+            android:name="androidx.startup.InitializationProvider"
+            android:authorities="${applicationId}.androidx-startup"
+            android:exported="false"
+            tools:node="merge">
+            <meta-data
+                android:name="androidx.work.WorkManagerInitializer"
+                android:value="androidx.startup"
+                tools:node="remove" />
+        </provider>
+
         <activity
             android:name=".component.activity.MainComposeActivity"
             android:exported="true"
-            android:theme="@style/AppTheme">
+            android:theme="@style/Theme.AppCompat.NoActionBar">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".component.activity.MainActivity" />
-        <activity android:name=".component.activity.IssuesActivity" />
-        <activity
-            android:name=".component.activity.ReaderActivity"
-            android:theme="@style/AppTheme" />
     </application>
 
 </manifest>

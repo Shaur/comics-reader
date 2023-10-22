@@ -45,9 +45,9 @@ abstract class ArchiveTool(protected val fileName: String) {
         val document = xmlBuilder.parse(xmlFile)
 
         val title = seriesExpr.evaluate(document, XPathConstants.STRING) as String
-        var number = titleExpr.evaluate(document, XPathConstants.STRING) as String
+        var number = numberExpr.evaluate(document, XPathConstants.STRING) as String
         if (number.isEmpty()) {
-            number = numberExpr.evaluate(document, XPathConstants.STRING) as String
+            number = titleExpr.evaluate(document, XPathConstants.STRING) as String
         }
 
         return ArchiveMeta(

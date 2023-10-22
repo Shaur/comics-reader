@@ -1,16 +1,18 @@
 package com.home.reader.ui.reader.viewmodel
 
-import androidx.compose.runtime.MutableState
+import android.content.Context
+import android.util.Log
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
-import coil.request.ImageRequest
-import com.home.reader.api.ApiProcessor
-import com.home.reader.ui.common.GlobalState
+import androidx.lifecycle.viewModelScope
+import com.home.reader.persistence.repository.IssueRepository
 import com.home.reader.ui.reader.state.ReaderState
+import kotlinx.coroutines.launch
+import java.io.File
 
 class ReaderViewModel(
-    private val api: ApiProcessor,
-    private val globalState: MutableState<GlobalState>
+    context: Context,
+    private val issueRepository: IssueRepository
 ) : ViewModel() {
 
     val state = mutableStateOf(
@@ -21,47 +23,70 @@ class ReaderViewModel(
         )
     )
 
-    fun loadPage(): ImageRequest {
-        return api.buildImageRequest(
-            issueId = state.value.issueId,
-            page = state.value.currentPage,
-            token = globalState.value.token!!
-        )
+    private val contentDir = context.filesDir
+
+    private var files: List<File>? = null
+
+    private val comparator = object : Comparator<File> {
+        override fun compare(f1: File?, f2: File?): Int {
+            if (f1 == null && f2 == null) return 0
+            if (f1 == null && f2 != null) return 1
+            if (f1 != null && f2 == null) return -1
+
+            val n1 = f1!!.nameWithoutExtension
+            val n2 = f2!!.nameWithoutExtension
+            if (n1.length > n2.length) return 1
+            if (n1.length < n2.length) return -1
+
+            return n1.compareTo(n2)
+        }
+
+    }
+
+    fun loadPage(page: Int): File {
+        val issueId = state.value.issueId.toString()
+        val issueDir = contentDir.resolve(issueId)
+        if (files == null) {
+            files = issueDir.listFiles()?.sortedWith(comparator)
+        }
+
+        return files!![page]
     }
 
     fun initState(id: Long, currentPage: Int, lastPage: Int) {
         state.value = ReaderState(id, currentPage, lastPage)
     }
 
-    fun nextPage() {
+    fun updateCurrentPage(page: Int) {
+        state.value = state.value.copy(currentPage = page)
+        viewModelScope.launch {
+            issueRepository.updateState(state.value.issueId, page)
+        }
+    }
+
+    private fun nextPage(action: (Int) -> Unit) {
         val currentPage = state.value.currentPage
         if (currentPage == state.value.lastPage) return
 
         state.value = state.value.copy(currentPage = currentPage + 1)
+        action.invoke(state.value.currentPage)
     }
 
-    fun prevPage() {
+    private fun prevPage(action: (Int) -> Unit) {
         val currentPage = state.value.currentPage
         if (currentPage == 0) return
 
         state.value = state.value.copy(currentPage = currentPage - 1)
+        action.invoke(state.value.currentPage)
     }
 
-    fun resolveClick(width: Int, x: Float) {
-        if (x < width / 2f && state.value.currentPage > 0) {
-            prevPage()
-        } else if (x > width / 2f && state.value.currentPage != state.value.lastPage) {
-            nextPage()
+    fun resolveClick(width: Float, x: Float, action: (Int) -> Unit) {
+        Log.i("Resolve click", "Width: $width, x: $x")
+        if (x < width / 2 && state.value.currentPage > 0) {
+            prevPage(action)
+        } else if (x > width / 2 && state.value.currentPage != state.value.lastPage) {
+            nextPage(action)
         }
-    }
-
-    fun loaderState(loaderState: LoaderState) {
-        state.value = state.value.copy(isLoading = loaderState != LoaderState.SUCCESS)
-    }
-
-    enum class LoaderState {
-        SUCCESS,
-        LOADING
     }
 
 }

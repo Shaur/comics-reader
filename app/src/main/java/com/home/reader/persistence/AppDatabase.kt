@@ -4,20 +4,20 @@ import android.content.Context
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
-import com.home.reader.persistence.dao.CredentialsDao
-import com.home.reader.persistence.dao.TaskDao
-import com.home.reader.persistence.entity.Credentials
-import com.home.reader.persistence.entity.Task
+import com.home.reader.persistence.dao.IssueDao
+import com.home.reader.persistence.dao.SeriesDao
+import com.home.reader.persistence.entity.Issue
+import com.home.reader.persistence.entity.Series
 
 @Database(
-    entities = [Credentials::class, Task::class],
+    entities = [Issue::class, Series::class],
     version = 1
 )
 abstract class AppDatabase : RoomDatabase() {
 
-    abstract fun credentialsDao(): CredentialsDao
+    abstract fun seriesDao(): SeriesDao
 
-    abstract fun taskDao(): TaskDao
+    abstract fun issueDao(): IssueDao
 
     companion object {
         @Volatile

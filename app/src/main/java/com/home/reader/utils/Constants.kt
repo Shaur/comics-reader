@@ -4,6 +4,11 @@ import androidx.compose.ui.unit.dp
 
 object Constants {
 
+    val COMICS_MIME_TYPES = arrayOf(
+        "application/x-cbr",
+        "application/x-cbz"
+    )
+
     object RequestCodes {
         const val READ_EXTERNAL_STORAGE_CODE = 100
     }
@@ -18,9 +23,8 @@ object Constants {
     }
 
     object Sizes {
-        const val PREVIEW_COVER_WIDTH_IN_DP = 110
         val COVER_WIDTH = 110.dp
-        const val PREVIEW_GATTER_WIDTH_ID_DP = 10
+        val COVER_HEIGHT = 177.dp
     }
 
     object ArgumentsPlaceholder {
@@ -28,6 +32,7 @@ object Constants {
         const val CURRENT_PAGE = "/{currentPage}"
         const val ISSUE_ID = "/{issueId}"
         const val SERIES_ID = "/{seriesId}"
+        const val SERIES_NAME = "/{seriesName}"
     }
 
     object Argument {
@@ -35,5 +40,6 @@ object Constants {
         const val CURRENT_PAGE = "currentPage"
         const val ISSUE_ID = "issueId"
         const val SERIES_ID = "seriesId"
+        const val SERIES_NAME = "seriesName"
     }
 }

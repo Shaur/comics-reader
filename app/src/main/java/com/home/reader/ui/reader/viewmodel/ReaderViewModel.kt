@@ -89,4 +89,12 @@ class ReaderViewModel(
         }
     }
 
+    fun resolverFiller() {
+        if (state.value.filler == ReaderState.Filler.MAX_HEIGHT) {
+            state.value = state.value.copy(filler = ReaderState.Filler.MAX_WIDTH)
+        } else {
+            state.value = state.value.copy(filler = ReaderState.Filler.MAX_HEIGHT)
+        }
+    }
+
 }

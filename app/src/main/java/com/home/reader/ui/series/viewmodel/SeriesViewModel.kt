@@ -2,7 +2,6 @@ package com.home.reader.ui.series.viewmodel
 
 import android.content.Context
 import android.net.Uri
-import android.util.Log
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModel
@@ -91,7 +90,6 @@ class SeriesViewModel(
 
     fun renameSeries(id: Long, name: String) {
         viewModelScope.launch {
-            Log.i("Normalized name", name.toNormalizedName())
             val series = repository.getSeriesByNormalizeName(name.toNormalizedName())
             if (series == null) {
                 repository.updateSeriesName(id, name)

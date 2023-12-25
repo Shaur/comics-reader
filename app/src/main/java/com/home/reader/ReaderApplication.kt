@@ -7,6 +7,7 @@ import com.home.reader.async.ImportComicsWorkerFactory
 import com.home.reader.persistence.AppContainer
 import com.home.reader.persistence.AppDataContainer
 
+
 class ReaderApplication : Application(), Configuration.Provider {
 
     lateinit var container: AppContainer
@@ -17,7 +18,8 @@ class ReaderApplication : Application(), Configuration.Provider {
         container = AppDataContainer(this)
     }
 
-    override fun getWorkManagerConfiguration(): Configuration {
+    override val workManagerConfiguration: Configuration
+        get() {
         val delegatingWorkerFactory = DelegatingWorkerFactory().also {
             it.addFactory(
                 ImportComicsWorkerFactory(

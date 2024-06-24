@@ -104,10 +104,10 @@ fun SeriesScreen(
             onDismissRequest = { selectedSeriesState = null },
             sheetState = sheetState
         ) {
-            BottomSheetButton(icon = Icons.Sharp.Edit, capture = "Edit issue") {
+            BottomSheetButton(icon = Icons.Sharp.Edit, capture = "Edit series") {
                 showRenameDialog = true
             }
-            BottomSheetButton(icon = Icons.Sharp.Delete, capture = "Delete issue") {
+            BottomSheetButton(icon = Icons.Sharp.Delete, capture = "Delete series") {
                 showRemoveDialog = true
             }
         }

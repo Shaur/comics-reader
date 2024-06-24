@@ -29,7 +29,6 @@ class SeriesViewModel(
 ) : ViewModel() {
 
     var state = mutableStateOf(listOf<SeriesDto>())
-        private set
 
     private val workerManager = WorkManager.getInstance(context)
 
@@ -63,20 +62,29 @@ class SeriesViewModel(
     private fun insertSeries(seriesId: Long) {
         viewModelScope.launch {
             val (series, issues) = repository.getSeriesById(seriesId)
+            val existsSeries = state.value.find { it.id == seriesId }
             state.value = buildList {
-                addAll(state.value)
-                add(convert(series, issues))
+                if (existsSeries == null) {
+                    add(convert(series, issues))
+                    addAll(state.value)
+                } else {
+                    add(existsSeries.copy(issuesCount = existsSeries.issuesCount + 1))
+                    addAll(state.value - existsSeries)
+                }
             }
         }
     }
 
     private fun convert(series: Series, issues: List<Issue>): SeriesDto {
+        val sortedIssues = issues.sortedWith(
+            compareBy<Issue> { it.issue.length }.then(naturalOrder())
+        )
         return SeriesDto(
             id = series.id!!,
             name = series.name,
             issuesCount = issues.count(),
             completedIssues = issues.count { it.isRead() },
-            coverPath = coversDir.resolve("${issues.first().id}.jpg").absolutePathString()
+            coverPath = coversDir.resolve("${sortedIssues.last().id}.jpg").absolutePathString()
         )
     }
 

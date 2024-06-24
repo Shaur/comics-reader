@@ -2,7 +2,6 @@ package com.home.reader.ui.issues.component
 
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -16,12 +15,12 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.rememberAsyncImagePainter
 import com.home.reader.component.dto.IssueDto
+import com.home.reader.utils.Constants
 import java.io.File
 
 @OptIn(ExperimentalFoundationApi::class)
@@ -47,9 +46,8 @@ fun IssueItem(
             painter = rememberAsyncImagePainter(model = File(issue.coverPath)),
             contentDescription = "Cover",
             modifier = Modifier
-                .width(110.dp)
-                .height(177.dp)
-                .background(Color.Black)
+                .width(Constants.Sizes.COVER_WIDTH)
+                .height(Constants.Sizes.COVER_HEIGHT)
         )
 
         LinearProgressIndicator(

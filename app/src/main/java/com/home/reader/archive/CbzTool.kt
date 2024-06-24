@@ -59,10 +59,18 @@ class CbzTool(fileName: String) : ArchiveTool(fileName) {
         ZipInputStream(input).use { zis ->
             zis.seq()
                 .filter { !it.isDirectory && !it.name.endsWith("xml") }
-                .forEachIndexed { index, _ ->
-                    val output = destination.resolve("$index.jpg")
+                .forEach { entry ->
+                    val name = entry.name.split("/").last()
+                    val output = destination.resolve("tmp-$name")
                     zis.copyTo(output.outputStream())
                 }
+        }
+
+        val comparator = compareBy<File> { it.nameWithoutExtension.length }.then(naturalOrder())
+
+        val sorted = (destination.listFiles() ?: emptyArray()).sortedWith(comparator)
+        sorted.forEachIndexed { index, file ->
+            file.renameTo(destination.resolve("$index.jpg"))
         }
     }
 }

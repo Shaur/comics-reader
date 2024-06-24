@@ -7,8 +7,11 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.home.reader.persistence.repository.IssueRepository
 import com.home.reader.ui.reader.state.ReaderState
+import com.home.reader.ui.reader.state.ReaderState.Orientation.HORIZONTAL
+import com.home.reader.ui.reader.state.ReaderState.Orientation.VERTICAL
 import kotlinx.coroutines.launch
 import java.io.File
+import androidx.compose.ui.geometry.Size
 
 class ReaderViewModel(
     context: Context,
@@ -81,7 +84,6 @@ class ReaderViewModel(
     }
 
     fun resolveClick(width: Float, x: Float, action: (Int) -> Unit) {
-        Log.i("Resolve click", "Width: $width, x: $x")
         if (x < width / 2 && state.value.currentPage > 0) {
             prevPage(action)
         } else if (x > width / 2 && state.value.currentPage != state.value.lastPage) {
@@ -95,6 +97,11 @@ class ReaderViewModel(
         } else {
             state.value = state.value.copy(filler = ReaderState.Filler.MAX_HEIGHT)
         }
+    }
+
+    fun resolveOrientation(size: Size) {
+        val orientation = if (size.width > size.height) HORIZONTAL else VERTICAL
+        state.value = state.value.copy(orientation = orientation)
     }
 
 }

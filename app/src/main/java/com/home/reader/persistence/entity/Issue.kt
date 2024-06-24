@@ -21,8 +21,12 @@ data class Issue(
 
     @ColumnInfo(name = "current_page")
     var currentPage: Int = 0
-) {
+) : Comparable<Issue> {
     fun isRead(): Boolean {
         return currentPage == pagesCount - 1
+    }
+
+    override fun compareTo(other: Issue): Int {
+        return this.issue.compareTo(other.issue)
     }
 }

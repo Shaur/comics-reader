@@ -50,7 +50,7 @@ abstract class ArchiveTool(protected val fileName: String) {
 
         val title = seriesExpr.evaluate(document, XPathConstants.STRING) as String
         var number = numberExprs.map { it.evaluate(document, XPathConstants.STRING) as String }
-            .first { it.isNotBlank() }
+            .firstOrNull { it.isNotBlank() } ?: ""
 
         if (number.isEmpty()) {
             number = titleExpr.evaluate(document, XPathConstants.STRING) as String
@@ -58,8 +58,7 @@ abstract class ArchiveTool(protected val fileName: String) {
 
         return ArchiveMeta(
             seriesName = title,
-            number = extractFirstNumber(number),
-            pagesCount = 0
+            number = extractFirstNumber(number)
         )
     }
 
@@ -100,7 +99,7 @@ abstract class ArchiveTool(protected val fileName: String) {
         val name1LowerCase = name1.lowercase()
         val name2LowerCase = name2.lowercase()
 
-        val builder: StringBuilder = StringBuilder()
+        val builder = StringBuilder()
         for (i in 0 until min) {
             if (name1LowerCase[i] == ' ' || name2LowerCase[i] == ' ') {
                 builder.append(' ')

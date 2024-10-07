@@ -51,10 +51,10 @@ fun IssueItem(
         )
 
         LinearProgressIndicator(
-            progress = issue.currentPage / (issue.pagesCount - 1).toFloat(),
+            progress = { issue.currentPage / (issue.pagesCount - 1).toFloat() },
             modifier = Modifier
                 .offset(y = (-4).dp)
-                .width(110.dp)
+                .width(110.dp),
         )
 
         Text(text = "${issue.seriesName} #${issue.issue}", fontSize = 12.sp, lineHeight = 14.sp)

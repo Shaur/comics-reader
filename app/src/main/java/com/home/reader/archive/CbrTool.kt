@@ -14,20 +14,17 @@ class CbrTool(fileName: String) : ArchiveTool(fileName) {
         val xmlFile =
             Files.createTempFile("ComicsInfo" + System.currentTimeMillis(), "xml").toFile()
         val archive = Archive(input)
-        val descriptors = archive.fileHeaders
-            .map {
-                if (it.fileName.contains("ComicInfo.xml")) {
-                    archive.extractFile(it, FileOutputStream(xmlFile))
-                }
-
-                it.fileName
+        archive.fileHeaders
+            .find { it.fileName.contains("ComicInfo.xml") }
+            ?.let {
+                archive.extractFile(it, FileOutputStream(xmlFile))
             }
 
         if (xmlFile.length() > 0) {
             val meta = extractMetaFromXml(xmlFile)
             xmlFile.delete()
 
-            return meta.copy(pagesCount = archive.count() - 1)
+            return meta
         }
 
         val seriesName = extractSeriesNameFromFileName(fileName)
@@ -40,8 +37,7 @@ class CbrTool(fileName: String) : ArchiveTool(fileName) {
 
         return ArchiveMeta(
             seriesName = seriesName,
-            number = number,
-            pagesCount = descriptors.count()
+            number = number
         )
     }
 

@@ -61,7 +61,7 @@ class ImportComicsWorker(
         return Result.success(output)
     }
 
-    private fun importFile(uri: Uri, issueId: Long) {
+    private suspend fun importFile(uri: Uri, issueId: Long) {
         with(applicationContext) {
             val issueDir = filesDir.resolve(issueId.toString())
             issueDir.mkdirs()
@@ -69,10 +69,8 @@ class ImportComicsWorker(
             val input = applicationContext.contentResolver.openInputStream(uri) ?: return
             archiveTool.extract(input, issueDir)
 
-//            issueDir.listFiles()?.sortedBy { it.nameWithoutExtension }
-//                ?.forEachIndexed { index, file ->
-//                    file.renameTo(file.parentFile!!.resolve("$index.jpg"))
-//                }
+            val pagesCount = issueDir.listFiles()?.count() ?: 0
+            issueRepository.updatePagesCount(issueId, pagesCount)
 
             val cover = coversPath().resolve("$issueId.jpg")
             val firstPage = (issueDir.listFiles() ?: arrayOf()).minByOrNull { it.name }
@@ -105,11 +103,7 @@ class ImportComicsWorker(
                 return@with series.id!! to issue.id!!
             }
 
-            issue = Issue(
-                issue = number,
-                seriesId = series.id!!,
-                pagesCount = pagesCount
-            )
+            issue = Issue(issue = number, seriesId = series.id!!)
 
             val issueId = issueRepository.insert(issue)
 

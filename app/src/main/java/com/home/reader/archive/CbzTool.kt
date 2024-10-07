@@ -1,7 +1,6 @@
 package com.home.reader.archive
 
 import com.home.reader.component.dto.ArchiveMeta
-import org.apache.commons.text.similarity.LevenshteinDistance
 import java.io.File
 import java.io.FileOutputStream
 import java.io.InputStream
@@ -28,7 +27,7 @@ class CbzTool(fileName: String) : ArchiveTool(fileName) {
             val meta = extractMetaFromXml(xmlFile)
             xmlFile.delete()
 
-            return meta.copy(pagesCount = descriptors.count() - 1)
+            return meta
         }
 
         val firstPageName = descriptors.first()
@@ -44,16 +43,10 @@ class CbzTool(fileName: String) : ArchiveTool(fileName) {
             extractNumberFromFileName(fileName)
         ).firstOrNull { it.isNotBlank() } ?: ""
 
-        val pagesCount = if (hasTrashPages(descriptors)) {
-            descriptors.count() - 1
-        } else {
-            descriptors.count()
-        }
 
         return ArchiveMeta(
             seriesName = seriesName,
-            number = number,
-            pagesCount = pagesCount
+            number = number
         )
     }
 
@@ -86,7 +79,6 @@ class CbzTool(fileName: String) : ArchiveTool(fileName) {
             file.renameTo(destination.resolve("$index.jpg"))
         }
     }
-
 }
 
 private fun ZipInputStream.seq(): Sequence<ZipEntry> {

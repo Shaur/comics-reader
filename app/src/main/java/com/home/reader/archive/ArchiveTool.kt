@@ -1,6 +1,7 @@
 package com.home.reader.archive
 
 import com.home.reader.component.dto.ArchiveMeta
+import org.apache.commons.text.similarity.LevenshteinDistance
 import java.io.File
 import java.io.InputStream
 import javax.xml.parsers.DocumentBuilderFactory
@@ -23,7 +24,10 @@ abstract class ArchiveTool(protected val fileName: String) {
 
     private val xpath: XPath = XPathFactory.newInstance().newXPath()
     private val titleExpr: XPathExpression = xpath.compile("/ComicInfo/Title/text()")
-    private val numberExpr: XPathExpression = xpath.compile("/ComicInfo/Number/text()")
+    private val numberExprs: List<XPathExpression> = listOf(
+        xpath.compile("/ComicInfo/Number/text()"),
+        xpath.compile("/ComicInfo/Issue/text()"),
+    )
     private val seriesExpr: XPathExpression = xpath.compile("/ComicInfo/Series/text()")
 
     abstract fun getMeta(input: InputStream): ArchiveMeta
@@ -45,7 +49,9 @@ abstract class ArchiveTool(protected val fileName: String) {
         val document = xmlBuilder.parse(xmlFile)
 
         val title = seriesExpr.evaluate(document, XPathConstants.STRING) as String
-        var number = numberExpr.evaluate(document, XPathConstants.STRING) as String
+        var number = numberExprs.map { it.evaluate(document, XPathConstants.STRING) as String }
+            .first { it.isNotBlank() }
+
         if (number.isEmpty()) {
             number = titleExpr.evaluate(document, XPathConstants.STRING) as String
         }
@@ -109,6 +115,17 @@ abstract class ArchiveTool(protected val fileName: String) {
         }
 
         return builder.toString()
+    }
+
+    protected fun hasTrashPages(names: Collection<String>): Boolean {
+        val distance = LevenshteinDistance()
+
+        val min = names.minBy { it.length }
+        val max = names.maxBy { it.length }
+
+        val threshold = names.size.toString().length
+
+        return distance.apply(min, max) > threshold
     }
 
 }

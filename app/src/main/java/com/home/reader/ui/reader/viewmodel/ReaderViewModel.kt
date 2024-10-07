@@ -1,7 +1,6 @@
 package com.home.reader.ui.reader.viewmodel
 
 import android.content.Context
-import android.util.Log
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -28,32 +27,17 @@ class ReaderViewModel(
 
     private val contentDir = context.filesDir
 
-    private var files: List<File>? = null
-
-    private val comparator = object : Comparator<File> {
-        override fun compare(f1: File?, f2: File?): Int {
-            if (f1 == null && f2 == null) return 0
-            if (f1 == null && f2 != null) return 1
-            if (f1 != null && f2 == null) return -1
-
-            val n1 = f1!!.nameWithoutExtension
-            val n2 = f2!!.nameWithoutExtension
-            if (n1.length > n2.length) return 1
-            if (n1.length < n2.length) return -1
-
-            return n1.compareTo(n2)
-        }
-
-    }
+    private var files: List<File> = listOf()
 
     fun loadPage(page: Int): File {
         val issueId = state.value.issueId.toString()
         val issueDir = contentDir.resolve(issueId)
-        if (files == null) {
-            files = issueDir.listFiles()?.sortedWith(comparator)
+        if (files.isEmpty()) {
+            val comparator = compareBy<File> { it.nameWithoutExtension.length }.then(naturalOrder())
+            files = issueDir.listFiles()?.sortedWith(comparator) ?: listOf()
         }
 
-        return files!![page]
+        return files[page]
     }
 
     fun initState(id: Long, currentPage: Int, lastPage: Int) {

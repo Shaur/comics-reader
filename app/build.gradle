@@ -57,7 +57,7 @@ dependencies {
     implementation "androidx.room:room-runtime:$roomVersion"
     implementation "androidx.room:room-ktx:$roomVersion"
 
-    implementation 'com.yandex.android:disk-restapi-sdk:1.03'
+    implementation("org.apache.commons:commons-text:1.12.0")
 
     kapt "androidx.room:room-compiler:$roomVersion"
 
@@ -88,7 +88,7 @@ dependencies {
     debugImplementation 'androidx.compose.ui:ui-tooling:1.6.8'
 
     //For REST api
-    implementation 'com.squareup.okhttp3:okhttp:5.0.0-alpha.11'
+    implementation 'com.squareup.okhttp3:okhttp:5.0.0-alpha.12'
     implementation 'com.google.code.gson:gson:2.10.1'
 
     implementation "org.jetbrains.kotlin:kotlin-stdlib:1.9.21"

@@ -1,17 +1,23 @@
 package com.home.reader.ui.reader.screen
 
+import android.widget.LinearLayout
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.horizontalScroll
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.PagerDefaults
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Slider
+import androidx.compose.material3.SliderState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -37,7 +43,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 
-@OptIn(ExperimentalFoundationApi::class)
+@OptIn(ExperimentalFoundationApi::class, ExperimentalMaterial3Api::class)
 @Composable
 fun ReaderScreen(
     viewModel: ReaderViewModel = viewModel(factory = AppViewModelProvider.Factory),
@@ -69,7 +75,6 @@ fun ReaderScreen(
             viewModel.updateCurrentPage(page)
         }
     }
-
 
     HorizontalPager(
         state = pagerState,
@@ -114,6 +119,15 @@ fun ReaderScreen(
             )
         }
     }
+
+//    Slider(
+//        state = SliderState(
+//            value = state.currentPage.toFloat(),
+//            steps = state.lastPage,
+//            valueRange = 0f..state.lastPage.toFloat()
+//        ),
+//        modifier = Modifier.fillMaxWidth()
+//    )
 
 }
 

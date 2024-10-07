@@ -16,7 +16,6 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -115,7 +114,7 @@ fun IssuesScreen(
     if (showRenameDialog) {
         RenameDialog(
             title = "Rename issue",
-            baseText = state.first { it.id == selectedIssueState }.seriesName,
+            baseText = state.first { it.id == selectedIssueState }.issue,
             onDismiss = {
                 selectedIssueState = null
                 showRenameDialog = false

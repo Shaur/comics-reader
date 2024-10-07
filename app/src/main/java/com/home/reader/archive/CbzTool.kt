@@ -1,6 +1,7 @@
 package com.home.reader.archive
 
 import com.home.reader.component.dto.ArchiveMeta
+import org.apache.commons.text.similarity.LevenshteinDistance
 import java.io.File
 import java.io.FileOutputStream
 import java.io.InputStream
@@ -43,11 +44,16 @@ class CbzTool(fileName: String) : ArchiveTool(fileName) {
             extractNumberFromFileName(fileName)
         ).firstOrNull { it.isNotBlank() } ?: ""
 
+        val pagesCount = if (hasTrashPages(descriptors)) {
+            descriptors.count() - 1
+        } else {
+            descriptors.count()
+        }
 
         return ArchiveMeta(
             seriesName = seriesName,
             number = number,
-            pagesCount = descriptors.count()
+            pagesCount = pagesCount
         )
     }
 
@@ -61,7 +67,7 @@ class CbzTool(fileName: String) : ArchiveTool(fileName) {
                 .filter { !it.isDirectory && !it.name.endsWith("xml") }
                 .forEach { entry ->
                     val name = entry.name.split("/").last()
-                    val output = destination.resolve("tmp-$name")
+                    val output = destination.resolve(name)
                     zis.copyTo(output.outputStream())
                 }
         }
@@ -69,10 +75,18 @@ class CbzTool(fileName: String) : ArchiveTool(fileName) {
         val comparator = compareBy<File> { it.nameWithoutExtension.length }.then(naturalOrder())
 
         val sorted = (destination.listFiles() ?: emptyArray()).sortedWith(comparator)
+
+        val min = sorted.minBy { it.nameWithoutExtension.length }
+
+        if (hasTrashPages(sorted.map { it.nameWithoutExtension })) {
+            min.delete()
+        }
+
         sorted.forEachIndexed { index, file ->
             file.renameTo(destination.resolve("$index.jpg"))
         }
     }
+
 }
 
 private fun ZipInputStream.seq(): Sequence<ZipEntry> {

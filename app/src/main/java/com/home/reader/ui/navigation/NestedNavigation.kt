@@ -21,7 +21,8 @@ fun NavGraphBuilder.authenticatedGraph(controller: NavController) {
         composable(route = NavigationRoutes.Authenticated.Series.route) {
             SeriesScreen(
                 onNavigateToIssuesScreen = { id, name ->
-                    controller.navigate(route = NavigationRoutes.Authenticated.Issues.route + "/$id/$name")
+                    val normalized = name.replace("/", "\\")
+                    controller.navigate(route = NavigationRoutes.Authenticated.Issues.route + "/$id/$normalized")
                 }
             )
         }

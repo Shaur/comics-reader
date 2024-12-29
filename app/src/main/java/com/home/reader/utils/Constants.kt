@@ -6,17 +6,10 @@ object Constants {
 
     val COMICS_MIME_TYPES = arrayOf(
         "application/x-cbr",
-        "application/x-cbz"
+        "application/x-cbz",
+        "application/vnd.comicbook-rar",
+        "application/vnd.comicbook+zip"
     )
-
-    object RequestCodes {
-        const val READ_EXTERNAL_STORAGE_CODE = 100
-    }
-
-    object SeriesExtra {
-        const val SERIES_ID = "SERIES_ID"
-        const val ISSUE_DIR = "ISSUE_DIR"
-    }
 
     object Dirs {
         const val COVERS = "covers"

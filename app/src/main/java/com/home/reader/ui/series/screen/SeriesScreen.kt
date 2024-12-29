@@ -57,8 +57,8 @@ fun SeriesScreen(
     )
 
     val chooseFileLauncher = rememberLauncherForActivityResult(
-        ActivityResultContracts.OpenMultipleDocuments()
-    ) { selectedFiles -> viewModel.loadIssues(selectedFiles) }
+        ActivityResultContracts.OpenMultipleDocuments(), viewModel::loadIssues
+    )
 
     viewModel.refresh()
 

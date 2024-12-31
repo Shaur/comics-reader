@@ -9,8 +9,8 @@ android {
 
     defaultConfig {
         applicationId "com.home.reader"
-        minSdkVersion 33
-        targetSdk 34
+        minSdkVersion 34
+        targetSdk 35
         versionCode 1
         versionName "1.0"
 

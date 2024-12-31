@@ -1,8 +1,9 @@
 <resources>
 
-    <style name="Theme.AppCompat.AppWidgetContainerParent" parent="@android:style/Theme.DeviceDefault">
+    <style name="Theme.AppCompat.AppWidgetContainerParent" parent="android:Theme.DeviceDefault.NoActionBar.Fullscreen">
         <!-- Radius of the outer bound of widgets to make the rounded corners -->
         <item name="appWidgetRadius">16dp</item>
+        <item name="android:windowLayoutInDisplayCutoutMode">shortEdges</item>
         <!--
         Radius of the inner view's bound of widgets to make the rounded corners.
         It needs to be 8dp or less than the value of appWidgetRadius

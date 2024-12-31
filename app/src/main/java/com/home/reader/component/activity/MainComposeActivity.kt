@@ -1,9 +1,9 @@
 package com.home.reader.component.activity
 
 import android.os.Bundle
+import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
@@ -16,11 +16,12 @@ import androidx.navigation.compose.rememberNavController
 import com.home.reader.ui.navigation.NavigationRoutes
 import com.home.reader.ui.navigation.authenticatedGraph
 
-class MainComposeActivity : AppCompatActivity() {
+class MainComposeActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
         enableEdgeToEdge()
+
+        super.onCreate(savedInstanceState)
         setContent {
             MaterialTheme {
                 MainApp()

@@ -6,18 +6,22 @@ import androidx.room.Room
 import androidx.room.RoomDatabase
 import com.home.reader.persistence.dao.IssueDao
 import com.home.reader.persistence.dao.SeriesDao
+import com.home.reader.persistence.dao.UserDao
 import com.home.reader.persistence.entity.Issue
 import com.home.reader.persistence.entity.Series
+import com.home.reader.persistence.entity.User
 
 @Database(
-    entities = [Issue::class, Series::class],
-    version = 1
+    entities = [Issue::class, Series::class, User::class],
+    version = 2
 )
 abstract class AppDatabase : RoomDatabase() {
 
     abstract fun seriesDao(): SeriesDao
 
     abstract fun issueDao(): IssueDao
+
+    abstract fun userDao(): UserDao
 
     companion object {
         @Volatile
@@ -32,6 +36,8 @@ abstract class AppDatabase : RoomDatabase() {
             context,
             AppDatabase::class.java,
             "reader-database"
-        ).build()
+        )
+            .fallbackToDestructiveMigration()
+            .build()
     }
 }

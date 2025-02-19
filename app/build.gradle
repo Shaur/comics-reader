@@ -49,6 +49,7 @@ dependencies {
     def roomVersion = "2.6.1"
     def roomCompilerVersion = "1.1.1"
     def lifecycleVersion = "2.8.6"
+    def jwtVersion = "0.12.6"
 
     implementation fileTree(dir: "libs", include: ["*.jar"])
     implementation 'com.github.junrar:junrar:7.5.5'
@@ -58,6 +59,9 @@ dependencies {
     implementation "androidx.room:room-ktx:$roomVersion"
 
     implementation "org.apache.commons:commons-text:1.12.0"
+
+    implementation "io.jsonwebtoken:jjwt-api:$jwtVersion"
+    implementation "io.jsonwebtoken:jjwt-impl:$jwtVersion"
 
     kapt "androidx.room:room-compiler:$roomVersion"
 

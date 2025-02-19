@@ -4,21 +4,24 @@ import android.content.Context
 import coil.request.ImageRequest
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
+import com.home.reader.api.dto.Credentials
 import com.home.reader.api.dto.Issue
 import com.home.reader.api.dto.Result
 import com.home.reader.api.dto.Series
+import com.home.reader.api.dto.Token
+import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.OkHttpClient
 import okhttp3.Request
+import okhttp3.RequestBody.Companion.toRequestBody
 import okhttp3.Response
 import java.io.InputStreamReader
 import java.lang.reflect.Type
 
-class ApiProcessor(host: String, port: Int, private val context: Context) {
-
-    private val baseUrl = "http://$host:$port"
+class ApiProcessor(private val host: String, private val context: Context) {
     private val client = OkHttpClient()
 
     private companion object {
+        val CONTENT_TYPE = "application/json".toMediaType()
 
         val SERIES_RESULT_TYPE: Type = TypeToken.getParameterized(
             List::class.java,
@@ -30,14 +33,27 @@ class ApiProcessor(host: String, port: Int, private val context: Context) {
             Issue::class.java
         ).type
 
+        const val AUTH = "/customer/login"
         const val ALL_SERIES = "/comics/series"
         const val ISSUES_OF_SERIES = "/comics/series/%s/issues"
+    }
+
+    fun login(username: String, password: String): Result<Token> {
+        val credentials = Credentials(username, password)
+        val body = Gson().toJson(credentials).toRequestBody(CONTENT_TYPE)
+
+        val request = Request.Builder()
+            .post(body)
+            .url("$host$AUTH")
+            .build()
+
+        return client.newCall(request).execute().toResult<Token>()
     }
 
     fun getSeries(token: String): Result<List<Series>> {
         val request = Request.Builder()
             .get()
-            .url("$baseUrl$ALL_SERIES")
+            .url("$host$ALL_SERIES")
             .addAuthorizationHeader(token)
             .build()
 
@@ -51,7 +67,7 @@ class ApiProcessor(host: String, port: Int, private val context: Context) {
         size: String = "origin"
     ): ImageRequest {
         return ImageRequest.Builder(context = context)
-            .data("$baseUrl/file/$issueId/$page?size=$size")
+            .data("$host/file/$issueId/$page?size=$size")
             .addHeader("Authorization", "Bearer $token")
             .build()
     }
@@ -60,7 +76,7 @@ class ApiProcessor(host: String, port: Int, private val context: Context) {
         val path = ISSUES_OF_SERIES.format(seriesId)
         val request = Request.Builder()
             .get()
-            .url("$baseUrl$path")
+            .url("$host$path")
             .addAuthorizationHeader(token)
             .build()
 
@@ -80,4 +96,7 @@ class ApiProcessor(host: String, port: Int, private val context: Context) {
         return Result(value)
     }
 
+    private inline fun <reified T> Response.toResult(): Result<T> {
+        return this.toResult(TypeToken.get(T::class.java).type)
+    }
 }

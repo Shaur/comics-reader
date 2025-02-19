@@ -6,6 +6,8 @@ sealed class NavigationRoutes {
 
         object NavigationRoute : Unauthenticated(route = "unauthenticated")
 
+        object Login : Unauthenticated(route = "login")
+
     }
 
     sealed class Authenticated(val route: String): NavigationRoutes() {
@@ -17,6 +19,8 @@ sealed class NavigationRoutes {
         object Issues : Authenticated(route = "Issues")
 
         object Reader : Authenticated(route = "Reader")
+
+        object Catalogue : Authenticated(route = "Catalogue")
     }
 
 }

@@ -9,7 +9,6 @@ import com.home.reader.persistence.entity.Issue
 import com.home.reader.persistence.repository.IssueRepository
 import com.home.reader.utils.coversPath
 import kotlinx.coroutines.launch
-import java.io.File
 import kotlin.io.path.absolutePathString
 
 class IssuesViewModel(

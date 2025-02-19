@@ -21,6 +21,7 @@ import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -31,6 +32,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.isGranted
 import com.google.accompanist.permissions.rememberPermissionState
+import com.home.reader.persistence.entity.User
 import com.home.reader.ui.AppViewModelProvider
 import com.home.reader.ui.common.component.BottomSheetButton
 import com.home.reader.ui.common.component.RenameDialog
@@ -43,8 +45,11 @@ import com.home.reader.utils.Constants.Sizes.COVER_WIDTH
 @Composable
 fun SeriesScreen(
     viewModel: SeriesViewModel = viewModel(factory = AppViewModelProvider.Factory),
-    onNavigateToIssuesScreen: (id: Long, name: String) -> Unit
+    onNavigateToIssuesScreen: (id: Long, name: String) -> Unit,
+    loginState: MutableState<User?>
 ) {
+
+    loginState.value = viewModel.loginState.value
 
     val state by remember { viewModel.state }
     var showRemoveDialog by remember { mutableStateOf(false) }

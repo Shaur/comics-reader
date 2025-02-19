@@ -15,8 +15,10 @@ import com.home.reader.async.ImportComicsWorker.Companion.IMPORT_WORKER_SERIES_I
 import com.home.reader.component.dto.SeriesDto
 import com.home.reader.persistence.entity.Issue
 import com.home.reader.persistence.entity.Series
+import com.home.reader.persistence.entity.User
 import com.home.reader.persistence.repository.IssueRepository
 import com.home.reader.persistence.repository.SeriesRepository
+import com.home.reader.persistence.repository.UserRepository
 import com.home.reader.utils.coversPath
 import com.home.reader.utils.toNormalizedName
 import kotlinx.coroutines.launch
@@ -25,14 +27,22 @@ import kotlin.io.path.absolutePathString
 class SeriesViewModel(
     context: Context,
     private val repository: SeriesRepository,
-    private val issueRepository: IssueRepository
+    private val issueRepository: IssueRepository,
+    private val userRepository: UserRepository
 ) : ViewModel() {
 
     var state = mutableStateOf(listOf<SeriesDto>())
+    var loginState = mutableStateOf<User?>(null)
 
     private val workerManager = WorkManager.getInstance(context)
 
     private val coversDir = context.coversPath()
+
+    init {
+        viewModelScope.launch {
+            loginState.value = userRepository.get()
+        }
+    }
 
     fun loadIssues(uris: List<Uri>) {
         for (uri in uris) {

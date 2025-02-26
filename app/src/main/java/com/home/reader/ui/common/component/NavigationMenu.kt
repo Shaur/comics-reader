@@ -40,7 +40,7 @@ fun NavigationMenu(
                         }
                     },
                     selected = false,
-                    onClick = { if (loginState.value == null) controller.navigate(NavigationRoutes.Unauthenticated.Login) }
+                    onClick = { if (loginState.value == null) controller.navigate(NavigationRoutes.Unauthenticated.Login.route) }
                 )
                 HorizontalDivider()
                 NavigationDrawerItem(

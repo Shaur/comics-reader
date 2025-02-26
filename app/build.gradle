@@ -4,7 +4,7 @@ apply plugin: 'kotlin-kapt'
 
 android {
 //    compileSdkVersion 34
-    compileSdk 34
+    compileSdk 35
 //    buildToolsVersion '33.0.1'
 
     defaultConfig {
@@ -85,7 +85,7 @@ dependencies {
     implementation 'com.google.apis:google-api-services-drive:v3-rev20220815-2.0.0'
 
     //Image loader
-    implementation "io.coil-kt:coil-compose:2.5.0"
+    implementation "io.coil-kt:coil-compose:2.7.0"
 
 
     //For REST api

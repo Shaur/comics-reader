@@ -1,11 +1,10 @@
 package com.home.reader.api
 
-import android.content.Context
-import coil.request.ImageRequest
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import com.home.reader.api.dto.Credentials
 import com.home.reader.api.dto.Issue
+import com.home.reader.api.dto.ReadingProgressUpdate
 import com.home.reader.api.dto.Result
 import com.home.reader.api.dto.Series
 import com.home.reader.api.dto.Token
@@ -16,8 +15,10 @@ import okhttp3.RequestBody.Companion.toRequestBody
 import okhttp3.Response
 import java.io.InputStreamReader
 import java.lang.reflect.Type
+import java.time.ZoneId
+import java.time.ZonedDateTime
 
-class ApiProcessor(private val host: String, private val context: Context) {
+class ApiProcessor(private val host: String) {
     private val client = OkHttpClient()
 
     private companion object {
@@ -34,8 +35,9 @@ class ApiProcessor(private val host: String, private val context: Context) {
         ).type
 
         const val AUTH = "/customer/login"
-        const val ALL_SERIES = "/comics/series"
-        const val ISSUES_OF_SERIES = "/comics/series/%s/issues"
+        const val SERIES = "/series"
+        const val ISSUE = "/issue"
+        const val ISSUES = "/issues"
     }
 
     fun login(username: String, password: String): Result<Token> {
@@ -53,27 +55,19 @@ class ApiProcessor(private val host: String, private val context: Context) {
     fun getSeries(token: String): Result<List<Series>> {
         val request = Request.Builder()
             .get()
-            .url("$host$ALL_SERIES")
+            .url("$host$SERIES")
             .addAuthorizationHeader(token)
             .build()
 
         return client.newCall(request).execute().toResult(SERIES_RESULT_TYPE)
     }
 
-    fun buildImageRequest(
-        issueId: Long,
-        token: String,
-        page: Int = 0,
-        size: String = "origin"
-    ): ImageRequest {
-        return ImageRequest.Builder(context = context)
-            .data("$host/file/$issueId/$page?size=$size")
-            .addHeader("Authorization", "Bearer $token")
-            .build()
+    fun buildImageUrl(url: String): String {
+        return host + url
     }
 
     fun getIssues(seriesId: Long, token: String): Result<List<Issue>> {
-        val path = ISSUES_OF_SERIES.format(seriesId)
+        val path = "$SERIES/$seriesId$ISSUES"
         val request = Request.Builder()
             .get()
             .url("$host$path")
@@ -81,6 +75,29 @@ class ApiProcessor(private val host: String, private val context: Context) {
             .build()
 
         return client.newCall(request).execute().toResult(ISSUES_RESULT_TYPE)
+    }
+
+    fun updateProgress(issueId: Long, currentPage: Int, token: String): Result<Boolean> {
+        val progressUpdate = ReadingProgressUpdate(
+            currentPage = currentPage,
+            updateTime = ZonedDateTime.now(ZoneId.of("UTC")).toEpochSecond()
+        )
+
+        val body = Gson().toJson(progressUpdate).toRequestBody(CONTENT_TYPE)
+
+        val path = "$ISSUE/$issueId"
+        val request = Request.Builder()
+            .put(body)
+            .url(host + path)
+            .addAuthorizationHeader(token)
+            .build()
+
+        val response = client.newCall(request).execute()
+        if (response.code != 200) {
+            return Result.failure(response.code)
+        }
+
+        return Result(true)
     }
 
     private fun Request.Builder.addAuthorizationHeader(token: String): Request.Builder {

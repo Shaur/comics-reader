@@ -20,8 +20,8 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.FilterQuality
 import androidx.compose.ui.input.pointer.pointerInput
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.dp
@@ -30,7 +30,6 @@ import coil.compose.rememberAsyncImagePainter
 import com.home.reader.ui.AppViewModelProvider
 import com.home.reader.ui.common.component.KeepScreenOn
 import com.home.reader.ui.reader.state.ReaderState
-import com.home.reader.ui.reader.state.ReaderState.Filler.MAX_HEIGHT
 import com.home.reader.ui.reader.viewmodel.ReaderViewModel
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -41,11 +40,12 @@ fun ReaderScreen(
     viewModel: ReaderViewModel = viewModel(factory = AppViewModelProvider.Factory),
     id: Long,
     currentPage: Int = 0,
-    lastPage: Int
+    lastPage: Int,
+    mode: ReaderState.ReaderMode
 ) {
 
     val state by remember {
-        viewModel.initState(id, currentPage, lastPage)
+        viewModel.initState(id, currentPage, lastPage, mode)
         viewModel.state
     }
 
@@ -70,6 +70,7 @@ fun ReaderScreen(
 
     HorizontalPager(
         state = pagerState,
+        beyondViewportPageCount = 3,
         flingBehavior = PagerDefaults.flingBehavior(
             state = pagerState,
             snapPositionalThreshold = 0.15f
@@ -78,22 +79,12 @@ fun ReaderScreen(
         key(state.filler) {
             Image(
                 painter = rememberAsyncImagePainter(
-                    viewModel.loadPage(page),
-//                    contentScale = if (state.filler == MAX_HEIGHT) ContentScale.FillHeight else ContentScale.FillWidth,
-                    onSuccess = {
-                        val size = it.painter.intrinsicSize
-                        viewModel.resolveOrientation(size)
-                    }
+                    viewModel.requestPage(page),
+                    filterQuality = FilterQuality.High
                 ),
                 contentDescription = "Page $page",
-                contentScale = if (state.filler == MAX_HEIGHT) ContentScale.FillHeight else ContentScale.FillWidth,
-                modifier = Modifier
-                    .filler(
-                        state.filler,
-                        state.orientation,
-                        rememberScrollState(),
-                        rememberScrollState()
-                    )
+                contentScale = state.filler.scale,
+                modifier = Modifier.filler(rememberScrollState(), rememberScrollState())
                     .pointerInput(Unit) {
                         detectTapGestures(
                             onDoubleTap = { viewModel.resolverFiller() },
@@ -112,20 +103,9 @@ fun ReaderScreen(
         }
     }
 
-//    Slider(
-//        state = SliderState(
-//            value = state.currentPage.toFloat(),
-//            steps = state.lastPage,
-//            valueRange = 0f..state.lastPage.toFloat()
-//        ),
-//        modifier = Modifier.fillMaxWidth()
-//    )
-
 }
 
 private fun Modifier.filler(
-    filler: ReaderState.Filler,
-    orientation: ReaderState.Orientation,
     horizontalScrollState: ScrollState,
     verticalScrollState: ScrollState
 ): Modifier {
@@ -134,12 +114,6 @@ private fun Modifier.filler(
         .background(Color.Black)
         .verticalScroll(verticalScrollState)
         .horizontalScroll(horizontalScrollState)
-
-//    return if (filler == MAX_WIDTH) {
-//        modifier.verticalScroll(verticalScrollState)
-//    } else if (orientation == HORIZONTAL && filler == MAX_HEIGHT) {
-//        modifier.horizontalScroll(verticalScrollState)
-//    } else {
-//        modifier
-//    }
 }
+
+

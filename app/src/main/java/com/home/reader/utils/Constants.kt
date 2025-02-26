@@ -26,6 +26,7 @@ object Constants {
         const val ISSUE_ID = "/{issueId}"
         const val SERIES_ID = "/{seriesId}"
         const val SERIES_NAME = "/{seriesName}"
+        const val READER_MODE = "/{readerMode}"
     }
 
     object Argument {
@@ -34,5 +35,6 @@ object Constants {
         const val ISSUE_ID = "issueId"
         const val SERIES_ID = "seriesId"
         const val SERIES_NAME = "seriesName"
+        const val READER_MODE = "readerMode"
     }
 }

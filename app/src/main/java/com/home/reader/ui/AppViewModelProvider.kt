@@ -5,6 +5,7 @@ import androidx.lifecycle.viewmodel.CreationExtras
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import com.home.reader.ReaderApplication
+import com.home.reader.ui.catalogue.viewmodel.CatalogueViewModel
 import com.home.reader.ui.issues.viewmodel.IssuesViewModel
 import com.home.reader.ui.login.viewmodel.LoginViewModel
 import com.home.reader.ui.reader.viewmodel.ReaderViewModel
@@ -32,7 +33,8 @@ object AppViewModelProvider {
         initializer {
             ReaderViewModel(
                 context = readerApplication().applicationContext,
-                issueRepository = readerApplication().container.issueRepository
+                issueRepository = readerApplication().container.issueRepository,
+                api = readerApplication().container.api
             )
         }
 
@@ -42,6 +44,11 @@ object AppViewModelProvider {
             )
         }
 
+        initializer {
+            CatalogueViewModel(
+                api = readerApplication().container.api
+            )
+        }
     }
 }
 

@@ -24,6 +24,6 @@ class AppDataContainer(context: Context) : AppContainer {
 
     override val userRepository = DefaultUserRepository(AppDatabase.invoke(context).userDao())
 
-    override val api: ApiHandler = ApiHandler(context, userRepository)
+    override val api: ApiHandler = ApiHandler(userRepository)
 
 }

@@ -100,6 +100,7 @@ fun SeriesScreen(
                         onLongClick = { id -> selectedSeriesState = id }
                     )
                 }
+
             }
         }
     }

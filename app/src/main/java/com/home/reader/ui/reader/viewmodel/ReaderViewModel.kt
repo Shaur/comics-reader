@@ -6,15 +6,16 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.home.reader.persistence.repository.IssueRepository
 import com.home.reader.ui.reader.state.ReaderState
-import com.home.reader.ui.reader.state.ReaderState.Orientation.HORIZONTAL
-import com.home.reader.ui.reader.state.ReaderState.Orientation.VERTICAL
 import kotlinx.coroutines.launch
 import java.io.File
-import androidx.compose.ui.geometry.Size
+import coil.request.ImageRequest
+import com.home.reader.api.ApiHandler
+import kotlinx.coroutines.Dispatchers
 
 class ReaderViewModel(
     context: Context,
-    private val issueRepository: IssueRepository
+    private val issueRepository: IssueRepository,
+    private val api: ApiHandler
 ) : ViewModel() {
 
     val state = mutableStateOf(
@@ -29,7 +30,9 @@ class ReaderViewModel(
 
     private var files: List<File> = listOf()
 
-    fun loadPage(page: Int): File {
+    private val imageRequestBuilder = ImageRequest.Builder(context)
+
+    private fun loadLocalPage(page: Int): File {
         val issueId = state.value.issueId.toString()
         val issueDir = contentDir.resolve(issueId)
         if (files.isEmpty()) {
@@ -40,14 +43,27 @@ class ReaderViewModel(
         return files[page]
     }
 
-    fun initState(id: Long, currentPage: Int, lastPage: Int) {
-        state.value = ReaderState(id, currentPage, lastPage)
+    fun requestPage(page: Int): ImageRequest {
+        if (state.value.mode == ReaderState.ReaderMode.REMOTE) {
+            val issueId = state.value.issueId.toString()
+            return imageRequestBuilder.data(api.buildImageUrl("/pages/$issueId/$page")).build()
+        }
+
+        return imageRequestBuilder.data(loadLocalPage(page)).build()
+    }
+
+    fun initState(id: Long, currentPage: Int, lastPage: Int, mode: ReaderState.ReaderMode) {
+        state.value = ReaderState(id, currentPage, lastPage, mode = mode)
     }
 
     fun updateCurrentPage(page: Int) {
         state.value = state.value.copy(currentPage = page)
-        viewModelScope.launch {
-            issueRepository.updateState(state.value.issueId, page)
+        viewModelScope.launch(Dispatchers.IO) {
+            if (state.value.mode == ReaderState.ReaderMode.REMOTE) {
+                api.updateProgress(state.value.issueId, currentPage = page)
+            } else {
+                issueRepository.updateState(state.value.issueId, page)
+            }
         }
     }
 
@@ -81,11 +97,6 @@ class ReaderViewModel(
         } else {
             state.value = state.value.copy(filler = ReaderState.Filler.MAX_HEIGHT)
         }
-    }
-
-    fun resolveOrientation(size: Size) {
-        val orientation = if (size.width > size.height) HORIZONTAL else VERTICAL
-        state.value = state.value.copy(orientation = orientation)
     }
 
 }

@@ -29,6 +29,7 @@ import com.home.reader.ui.common.component.RemoveDialog
 import com.home.reader.ui.common.component.RenameDialog
 import com.home.reader.ui.issues.component.IssueItem
 import com.home.reader.ui.issues.viewmodel.IssuesViewModel
+import com.home.reader.ui.reader.state.ReaderState
 import com.home.reader.utils.Constants
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -37,7 +38,7 @@ fun IssuesScreen(
     viewModel: IssuesViewModel = viewModel(factory = AppViewModelProvider.Factory),
     seriesId: Long,
     seriesName: String,
-    onNavigateToReaderScreen: (id: Long, currentPage: Int, lastPage: Int) -> Unit
+    onNavigateToReaderScreen: (id: Long, currentPage: Int, lastPage: Int, mode: ReaderState.ReaderMode) -> Unit
 ) {
     val state by remember { viewModel.state }
 

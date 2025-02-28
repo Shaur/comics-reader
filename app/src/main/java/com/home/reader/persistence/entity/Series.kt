@@ -11,5 +11,7 @@ data class Series(
     @ColumnInfo(name = "name")
     var name: String,
     @ColumnInfo(name = "normalize_name")
-    var normalizeName: String? = null
+    var normalizeName: String? = null,
+    @ColumnInfo(name = "external_id", index = true)
+    var externalId: Long? = null
 )

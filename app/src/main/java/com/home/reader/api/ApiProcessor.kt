@@ -3,10 +3,10 @@ package com.home.reader.api
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import com.home.reader.api.dto.Credentials
-import com.home.reader.api.dto.Issue
+import com.home.reader.api.dto.IssueDto
 import com.home.reader.api.dto.ReadingProgressUpdate
 import com.home.reader.api.dto.Result
-import com.home.reader.api.dto.Series
+import com.home.reader.api.dto.SeriesDto
 import com.home.reader.api.dto.Token
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.OkHttpClient
@@ -26,12 +26,12 @@ class ApiProcessor(private val host: String) {
 
         val SERIES_RESULT_TYPE: Type = TypeToken.getParameterized(
             List::class.java,
-            Series::class.java
+            SeriesDto::class.java
         ).type
 
         val ISSUES_RESULT_TYPE: Type = TypeToken.getParameterized(
             List::class.java,
-            Issue::class.java
+            IssueDto::class.java
         ).type
 
         const val AUTH = "/customer/login"
@@ -52,7 +52,7 @@ class ApiProcessor(private val host: String) {
         return client.newCall(request).execute().toResult<Token>()
     }
 
-    fun getSeries(token: String): Result<List<Series>> {
+    fun getAllSeries(token: String): Result<List<SeriesDto>> {
         val request = Request.Builder()
             .get()
             .url("$host$SERIES")
@@ -66,7 +66,7 @@ class ApiProcessor(private val host: String) {
         return host + url
     }
 
-    fun getIssues(seriesId: Long, token: String): Result<List<Issue>> {
+    fun getIssues(seriesId: Long, token: String): Result<List<IssueDto>> {
         val path = "$SERIES/$seriesId$ISSUES"
         val request = Request.Builder()
             .get()
@@ -100,6 +100,29 @@ class ApiProcessor(private val host: String) {
         return Result(true)
     }
 
+    fun getSeries(id: Long, token: String): Result<SeriesDto> {
+        val path = "$SERIES/$id"
+        val request = Request.Builder()
+            .get()
+            .url("$host$path")
+            .addAuthorizationHeader(token)
+            .build()
+
+        return client.newCall(request).execute().toResult<SeriesDto>()
+    }
+
+
+    fun getIssue(id: Long, token: String): Result<IssueDto> {
+        val path = "$ISSUE/$id"
+        val request = Request.Builder()
+            .get()
+            .url("$host$path")
+            .addAuthorizationHeader(token)
+            .build()
+
+        return client.newCall(request).execute().toResult<IssueDto>()
+    }
+
     private fun Request.Builder.addAuthorizationHeader(token: String): Request.Builder {
         return this.addHeader("Authorization", "Bearer $token")
     }
@@ -116,4 +139,5 @@ class ApiProcessor(private val host: String) {
     private inline fun <reified T> Response.toResult(): Result<T> {
         return this.toResult(TypeToken.get(T::class.java).type)
     }
+
 }

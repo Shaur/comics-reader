@@ -2,7 +2,7 @@ package com.home.reader.api.dto
 
 import java.util.Date
 
-data class Issue(
+data class IssueDto(
 
     val id: Long,
 

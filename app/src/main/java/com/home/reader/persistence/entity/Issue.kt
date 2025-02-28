@@ -2,7 +2,6 @@ package com.home.reader.persistence.entity
 
 import androidx.room.ColumnInfo
 import androidx.room.Entity
-import androidx.room.Ignore
 import androidx.room.PrimaryKey
 
 @Entity(tableName = "issues")
@@ -20,7 +19,10 @@ data class Issue(
     var pagesCount: Int = 0,
 
     @ColumnInfo(name = "current_page")
-    var currentPage: Int = 0
+    var currentPage: Int = 0,
+
+    @ColumnInfo(name = "external_id", index = true)
+    var externalId: Long? = null
 ) : Comparable<Issue> {
     fun isRead(): Boolean {
         return currentPage == pagesCount - 1

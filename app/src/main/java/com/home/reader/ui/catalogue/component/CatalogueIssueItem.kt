@@ -8,6 +8,10 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.AddCircle
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -16,7 +20,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
-import com.home.reader.api.dto.Issue
+import com.home.reader.api.dto.IssueDto
 import com.home.reader.ui.reader.state.ReaderState
 import com.home.reader.utils.Constants.Sizes.COVER_HEIGHT
 import com.home.reader.utils.Constants.Sizes.COVER_WIDTH
@@ -24,10 +28,11 @@ import com.home.reader.utils.Constants.Sizes.COVER_WIDTH
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun CatalogueIssueItem(
-    item: Issue,
+    item: IssueDto,
     seriesName: String,
     coverUrl: String,
-    onClick: (id: Long, currentPage: Int, lastPage: Int, mode: ReaderState.ReaderMode) -> Unit
+    onClick: (id: Long, currentPage: Int, lastPage: Int, mode: ReaderState.ReaderMode) -> Unit,
+    onDownloadClick: () -> Unit
 ) {
     Column(
         verticalArrangement = Arrangement.Center,
@@ -48,13 +53,22 @@ fun CatalogueIssueItem(
                 .height(COVER_HEIGHT)
         )
 
-        LinearProgressIndicator(
-            progress = { item.currentPage / (item.pagesCount - 1).toFloat() },
-            modifier = Modifier
-                .offset(y = (-4).dp)
-                .width(110.dp),
-        )
+        Column(modifier = Modifier.offset(y = (-35).dp)) {
+            IconButton(
+                onClick = onDownloadClick,
+                modifier = Modifier
+                    .width(30.dp)
+                    .height(30.dp)
+            ) {
+                Icon(Icons.Rounded.AddCircle, "Cache issue")
+            }
 
-        Text(text = "$seriesName #${item.number}", fontSize = 12.sp, lineHeight = 14.sp)
+            LinearProgressIndicator(
+                progress = { item.currentPage / (item.pagesCount - 1).toFloat() },
+                modifier = Modifier.width(110.dp),
+            )
+
+            Text(text = "$seriesName #${item.number}", fontSize = 12.sp, lineHeight = 14.sp)
+        }
     }
 }

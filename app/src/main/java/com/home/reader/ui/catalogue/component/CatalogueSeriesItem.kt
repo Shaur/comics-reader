@@ -15,14 +15,14 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
-import com.home.reader.api.dto.Series
+import com.home.reader.api.dto.SeriesDto
 import com.home.reader.utils.Constants.Sizes.COVER_HEIGHT
 import com.home.reader.utils.Constants.Sizes.COVER_WIDTH
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun CatalogueSeriesItem(
-    item: Series,
+    item: SeriesDto,
     coverUrl: String,
     onClick: (id: Long, name: String) -> Unit
 ) {

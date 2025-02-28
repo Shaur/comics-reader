@@ -51,4 +51,7 @@ interface SeriesDao : SeriesRepository {
 
     @Query("delete from series where id = :id")
     override suspend fun deleteById(id: Long)
+
+    @Query("select * from series where external_id = :id")
+    override suspend fun getByExternalId(id: Long): Series?
 }

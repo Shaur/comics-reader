@@ -25,4 +25,6 @@ interface SeriesRepository {
     suspend fun updateSeriesName(id: Long, newName: String)
 
     suspend fun deleteById(id: Long)
+
+    suspend fun getByExternalId(id: Long): Series?
 }

@@ -1,15 +1,14 @@
 package com.home.reader.api
 
 import androidx.compose.runtime.mutableStateOf
-import com.home.reader.api.dto.Issue
-import com.home.reader.api.dto.Series
+import com.home.reader.api.dto.IssueDto
+import com.home.reader.api.dto.SeriesDto
 import com.home.reader.api.dto.Result
 import com.home.reader.api.exception.TokenUpdateFailedException
 import com.home.reader.api.exception.Unauthorized
 import com.home.reader.api.exception.UnknownException
 import com.home.reader.persistence.entity.User
 import com.home.reader.persistence.repository.UserRepository
-import okhttp3.Response
 
 class ApiHandler(private val userRepository: UserRepository) {
 
@@ -61,12 +60,20 @@ class ApiHandler(private val userRepository: UserRepository) {
         throw TokenUpdateFailedException()
     }
 
-    suspend fun getSeries(): List<Series> {
-        return withToken { processor.getSeries(it) }
+    suspend fun getAllSeries(): List<SeriesDto> {
+        return withToken { processor.getAllSeries(it) }
     }
 
-    suspend fun getIssues(seriesId: Long): List<Issue> {
+    suspend fun getSeries(id: Long): SeriesDto {
+        return withToken { processor.getSeries(id, it) }
+    }
+
+    suspend fun getIssues(seriesId: Long): List<IssueDto> {
         return withToken { processor.getIssues(seriesId, it) }
+    }
+
+    suspend fun getIssue(id: Long): IssueDto {
+        return withToken { processor.getIssue(id, it) }
     }
 
     suspend fun updateProgress(issueId: Long, currentPage: Int) {

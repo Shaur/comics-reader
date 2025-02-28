@@ -10,6 +10,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.home.reader.api.dto.SeriesDto
 import com.home.reader.ui.AppViewModelProvider
 import com.home.reader.ui.catalogue.component.CatalogueIssueItem
 import com.home.reader.ui.catalogue.component.CatalogueSeriesItem
@@ -25,8 +26,7 @@ fun CatalogueScreen(
 
     val seriesState by remember { viewModel.seriesState }
     val issuesState by remember { viewModel.issuesState }
-    var isSeriesScreen by remember { mutableStateOf(true) }
-    var seriesName by remember { mutableStateOf<String?>(null) }
+    var selectedSeries by remember { mutableStateOf<SeriesDto?>(null) }
 
     Column {
         Column {
@@ -34,27 +34,31 @@ fun CatalogueScreen(
                 columns = GridCells.Adaptive(COVER_WIDTH)
             ) {
 
-                if (isSeriesScreen) {
+                if (selectedSeries == null) {
                     items(seriesState) {
                         CatalogueSeriesItem(
                             item = it,
                             coverUrl = viewModel.coverRequest(it.cover),
                             onClick = { seriesId, _ ->
                                 viewModel.refreshIssuesState(seriesId)
-                                seriesName = it.title
-                                isSeriesScreen = false
+                                selectedSeries = it
                             }
                         )
                     }
                 }
 
-                if (!isSeriesScreen) {
+                if (selectedSeries != null) {
                     items(issuesState) {
                         CatalogueIssueItem(
                             item = it,
-                            seriesName = seriesName ?: "",
+                            seriesName = selectedSeries?.title ?: "",
                             coverUrl = viewModel.coverRequest("/pages/${it.id}/0"),
-                            onClick = onNavigateToReaderScreen
+                            onClick = onNavigateToReaderScreen,
+                            onDownloadClick = {
+                                val issueId = it.id
+                                val seriesId = selectedSeries?.id ?: 0L
+                                viewModel.download(seriesId, issueId)
+                            }
                         )
                     }
                 }

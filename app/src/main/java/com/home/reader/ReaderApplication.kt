@@ -24,7 +24,8 @@ class ReaderApplication : Application(), Configuration.Provider {
             it.addFactory(
                 ImportComicsWorkerFactory(
                     container.seriesRepository,
-                    container.issueRepository
+                    container.issueRepository,
+                    container.api
                 )
             )
         }

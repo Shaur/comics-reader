@@ -2,6 +2,7 @@ package com.home.reader.utils
 
 import android.content.ClipData
 import android.net.Uri
+import java.io.File
 
 private val regex = "[A-Za-z0-9\\s]+".toRegex()
 
@@ -15,3 +16,5 @@ fun String.toNormalizedName(): String {
         .joinToString(" ")
         .lowercase()
 }
+
+fun File.resolve(id: Long): File = this.resolve(id.toString())

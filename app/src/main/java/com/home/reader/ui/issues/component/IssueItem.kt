@@ -20,7 +20,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.rememberAsyncImagePainter
 import com.home.reader.component.dto.IssueDto
-import com.home.reader.ui.reader.state.ReaderState
+import com.home.reader.ui.reader.configuration.ReaderConfig
 import com.home.reader.utils.Constants
 import java.io.File
 
@@ -28,7 +28,7 @@ import java.io.File
 @Composable
 fun IssueItem(
     issue: IssueDto,
-    onClick: (id: Long, currentPage: Int, lastPage: Int, mode: ReaderState.ReaderMode) -> Unit,
+    onClick: (config: ReaderConfig) -> Unit,
     onLongClock: (id: Long) -> Unit
 ) {
     Column(
@@ -38,7 +38,15 @@ fun IssueItem(
             .padding(3.dp)
             .width(110.dp)
             .combinedClickable(
-                onClick = { onClick(issue.id, issue.currentPage, issue.pagesCount - 1, ReaderState.ReaderMode.LOCAL) },
+                onClick = {
+                    val config = ReaderConfig(
+                        id = issue.id,
+                        externalId = issue.externalId,
+                        currentPage = issue.currentPage,
+                        lastPage = issue.pagesCount - 1
+                    )
+                    onClick(config)
+                },
                 onLongClick = { onLongClock(issue.id) }
             )
 
@@ -67,6 +75,6 @@ fun IssueItem(
 fun Preview() {
     val dto = IssueDto(id = 1L, seriesName = "Good, bad and ugly", issue = "5")
     MaterialTheme {
-        IssueItem(issue = dto, onClick = { _, _, _, _ -> }, onLongClock = { _ -> })
+        IssueItem(issue = dto, onClick = { _ -> }, onLongClock = { _ -> })
     }
 }

@@ -37,6 +37,7 @@ class IssuesViewModel(
             state.value = issues.sortedWith(comparator).map {
                 IssueDto(
                     id = it.id!!,
+                    externalId = it.externalId,
                     issue = it.issue,
                     seriesName = name,
                     pagesCount = it.pagesCount,

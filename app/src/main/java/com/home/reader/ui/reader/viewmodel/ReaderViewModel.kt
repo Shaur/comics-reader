@@ -10,6 +10,9 @@ import kotlinx.coroutines.launch
 import java.io.File
 import coil.request.ImageRequest
 import com.home.reader.api.ApiHandler
+import com.home.reader.ui.reader.configuration.ReaderConfig
+import com.home.reader.ui.reader.configuration.ReaderConfig.ReaderMode
+import com.home.reader.utils.resolve
 import kotlinx.coroutines.Dispatchers
 
 class ReaderViewModel(
@@ -19,11 +22,7 @@ class ReaderViewModel(
 ) : ViewModel() {
 
     val state = mutableStateOf(
-        ReaderState(
-            issueId = 0,
-            currentPage = 0,
-            lastPage = 0
-        )
+        ReaderState(currentPage = 0, lastPage = 0)
     )
 
     private val contentDir = context.filesDir
@@ -32,8 +31,7 @@ class ReaderViewModel(
 
     private val imageRequestBuilder = ImageRequest.Builder(context)
 
-    private fun loadLocalPage(page: Int): File {
-        val issueId = state.value.issueId.toString()
+    private fun loadLocalPage(issueId: Long, page: Int): File {
         val issueDir = contentDir.resolve(issueId)
         if (files.isEmpty()) {
             val comparator = compareBy<File> { it.nameWithoutExtension.length }.then(naturalOrder())
@@ -44,25 +42,44 @@ class ReaderViewModel(
     }
 
     fun requestPage(page: Int): ImageRequest {
-        if (state.value.mode == ReaderState.ReaderMode.REMOTE) {
-            val issueId = state.value.issueId.toString()
+        val issueId = state.value.getFileSourceId()
+        if (state.value.mode == ReaderMode.REMOTE) {
             return imageRequestBuilder.data(api.buildImageUrl("/pages/$issueId/$page")).build()
         }
 
-        return imageRequestBuilder.data(loadLocalPage(page)).build()
+        return imageRequestBuilder.data(loadLocalPage(issueId, page)).build()
     }
 
-    fun initState(id: Long, currentPage: Int, lastPage: Int, mode: ReaderState.ReaderMode) {
-        state.value = ReaderState(id, currentPage, lastPage, mode = mode)
+    fun initState(config: ReaderConfig) {
+        val mode = with(config) {
+            if (id != null && externalId != null) {
+                ReaderMode.CACHED
+            } else if (id != null) {
+                ReaderMode.LOCAL
+            } else {
+                ReaderMode.REMOTE
+            }
+        }
+
+        state.value = ReaderState(
+            id = config.id,
+            externalId = config.externalId,
+            currentPage = config.currentPage,
+            lastPage = config.lastPage,
+            mode = mode
+        )
     }
 
     fun updateCurrentPage(page: Int) {
         state.value = state.value.copy(currentPage = page)
         viewModelScope.launch(Dispatchers.IO) {
-            if (state.value.mode == ReaderState.ReaderMode.REMOTE) {
-                api.updateProgress(state.value.issueId, currentPage = page)
-            } else {
-                issueRepository.updateState(state.value.issueId, page)
+            when (state.value.mode) {
+                ReaderMode.REMOTE -> api.updateProgress(state.value.externalId!!, page)
+                ReaderMode.LOCAL -> issueRepository.updateState(state.value.id!!, page)
+                else -> {
+                    api.updateProgress(state.value.externalId!!, page)
+                    issueRepository.updateState(state.value.id!!, page)
+                }
             }
         }
     }

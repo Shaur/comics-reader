@@ -1,9 +1,11 @@
 package com.home.reader.ui.reader.state
 
 import androidx.compose.ui.layout.ContentScale
+import com.home.reader.ui.reader.configuration.ReaderConfig.ReaderMode
 
 data class ReaderState(
-    val issueId: Long,
+    val id: Long? = null,
+    val externalId: Long? = null,
     val currentPage: Int,
     val lastPage: Int,
     val isLoading: Boolean = false,
@@ -20,7 +22,11 @@ data class ReaderState(
         HORIZONTAL, VERTICAL
     }
 
-    enum class ReaderMode {
-        LOCAL, REMOTE
+    fun getFileSourceId(): Long {
+        if (mode == ReaderMode.REMOTE) {
+            return externalId!!
+        }
+
+        return id!!
     }
 }

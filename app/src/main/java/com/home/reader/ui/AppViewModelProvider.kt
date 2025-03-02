@@ -47,7 +47,8 @@ object AppViewModelProvider {
         initializer {
             CatalogueViewModel(
                 context = readerApplication().applicationContext,
-                api = readerApplication().container.api
+                api = readerApplication().container.api,
+                issueRepository = readerApplication().container.issueRepository
             )
         }
     }

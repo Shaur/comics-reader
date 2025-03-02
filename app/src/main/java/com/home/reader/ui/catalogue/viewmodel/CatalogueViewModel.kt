@@ -1,6 +1,7 @@
 package com.home.reader.ui.catalogue.viewmodel
 
 import android.content.Context
+import android.util.Log
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModel
@@ -13,14 +14,20 @@ import com.home.reader.api.ApiHandler
 import com.home.reader.api.dto.IssueDto
 import com.home.reader.api.dto.SeriesDto
 import com.home.reader.async.DownloadIssueWorker
+import com.home.reader.persistence.repository.IssueRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
-class CatalogueViewModel(context: Context, private val api: ApiHandler) : ViewModel() {
+class CatalogueViewModel(
+    context: Context,
+    private val api: ApiHandler,
+    private val issueRepository: IssueRepository
+) : ViewModel() {
 
     var seriesState = mutableStateOf<List<SeriesDto>>(listOf())
     var issuesState = mutableStateOf<List<IssueDto>>(listOf())
-    var downloadProgress = mutableStateOf<Double?>(null)
+    var downloadProgress = mutableStateOf<Map<Long, Float>>(mapOf())
+    var cached = mutableStateOf<Map<Long, Boolean>>(mapOf())
 
     private val workerManager = WorkManager.getInstance(context)
 
@@ -33,6 +40,9 @@ class CatalogueViewModel(context: Context, private val api: ApiHandler) : ViewMo
     fun refreshIssuesState(seriesId: Long) {
         viewModelScope.launch(Dispatchers.IO) {
             issuesState.value = api.getIssues(seriesId)
+
+            val ids = issuesState.value.map { it.id }.toSet()
+            cached.value = issueRepository.getCached(ids).associate { it.externalId!! to true }
         }
     }
 
@@ -55,8 +65,14 @@ class CatalogueViewModel(context: Context, private val api: ApiHandler) : ViewMo
     }
 
     private val downloadIssueObserver = Observer<WorkInfo> {
-        val progress = it.progress.getDouble(DownloadIssueWorker.DOWNLOAD_WORKER_PROGRESS, 0.0)
-        downloadProgress.value = progress
+        val issueId = it.progress.getLong(DownloadIssueWorker.DOWNLOAD_WORKER_ISSUE_ID, 0)
+        val progress = it.progress.getFloat(DownloadIssueWorker.DOWNLOAD_WORKER_PROGRESS, 0f)
+        Log.i("Download", "Download progress $issueId $progress%")
+        downloadProgress.value += (issueId to progress)
+
+        if (it.state == WorkInfo.State.SUCCEEDED) {
+            cached.value += (issueId to true)
+        }
     }
 
 }

@@ -4,12 +4,15 @@ import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.AddCircle
+import androidx.compose.material.icons.rounded.Check
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.LinearProgressIndicator
@@ -21,7 +24,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import com.home.reader.api.dto.IssueDto
-import com.home.reader.ui.reader.state.ReaderState
+import com.home.reader.ui.reader.configuration.ReaderConfig
 import com.home.reader.utils.Constants.Sizes.COVER_HEIGHT
 import com.home.reader.utils.Constants.Sizes.COVER_WIDTH
 
@@ -31,38 +34,72 @@ fun CatalogueIssueItem(
     item: IssueDto,
     seriesName: String,
     coverUrl: String,
-    onClick: (id: Long, currentPage: Int, lastPage: Int, mode: ReaderState.ReaderMode) -> Unit,
-    onDownloadClick: () -> Unit
+    downloadProgress: Float?,
+    onClick: (config: ReaderConfig) -> Unit,
+    onDownloadClick: () -> Unit,
+    cached: Boolean
 ) {
     Column(
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.Start,
         modifier = Modifier
             .padding(3.dp)
-            .width(110.dp)
+            .width(200.dp)
             .combinedClickable(
-                onClick = { onClick(item.id, item.currentPage, item.pagesCount - 1, ReaderState.ReaderMode.REMOTE) }
+                onClick = {
+                    val config = ReaderConfig(
+                        externalId = item.id,
+                        currentPage = item.currentPage,
+                        lastPage = item.pagesCount - 1
+                    )
+                    onClick(config)
+                }
             )
 
     ) {
-        AsyncImage(
-            model = coverUrl,
-            contentDescription = "Cover",
-            modifier = Modifier
-                .width(COVER_WIDTH)
-                .height(COVER_HEIGHT)
-        )
 
-        Column(modifier = Modifier.offset(y = (-35).dp)) {
-            IconButton(
-                onClick = onDownloadClick,
+        Row {
+            AsyncImage(
+                model = coverUrl,
+                contentDescription = "Cover",
                 modifier = Modifier
-                    .width(30.dp)
-                    .height(30.dp)
-            ) {
-                Icon(Icons.Rounded.AddCircle, "Cache issue")
-            }
+                    .width(COVER_WIDTH)
+                    .height(COVER_HEIGHT)
+            )
 
+            Column(modifier = Modifier.padding(top = 10.dp)) {
+                if (cached) {
+                    IconButton(
+                        onClick = {},
+                        modifier = Modifier
+                            .width(30.dp)
+                            .height(30.dp)
+                    ) {
+                        Icon(Icons.Rounded.Check, "Issue cached")
+                    }
+                }
+
+                if (downloadProgress == null && !cached) {
+                    IconButton(
+                        onClick = onDownloadClick,
+                        modifier = Modifier
+                            .width(30.dp)
+                            .height(30.dp)
+                    ) {
+                        Icon(Icons.Rounded.AddCircle, "Cache issue")
+                    }
+                } else if (downloadProgress != null && !cached) {
+                    CircularProgressIndicator(
+                        progress = { downloadProgress },
+                        modifier = Modifier
+                            .width(30.dp)
+                            .height(30.dp)
+                    )
+                }
+            }
+        }
+
+        Column(modifier = Modifier.offset(y = (-5).dp)) {
             LinearProgressIndicator(
                 progress = { item.currentPage / (item.pagesCount - 1).toFloat() },
                 modifier = Modifier.width(110.dp),

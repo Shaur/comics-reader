@@ -7,7 +7,6 @@ import androidx.room.Query
 import androidx.room.Transaction
 import androidx.room.Update
 import com.home.reader.persistence.entity.Issue
-import com.home.reader.persistence.entity.Series
 import com.home.reader.persistence.entity.SeriesWithIssues
 import com.home.reader.persistence.repository.IssueRepository
 
@@ -50,4 +49,7 @@ interface IssueDao : IssueRepository {
 
     @Query("update issues set series_id = :newId where series_id = :oldId")
     override suspend fun changeSeriesId(oldId: Long, newId: Long)
+
+    @Query("select * from issues where external_id in (:externalIds)")
+    override suspend fun getCached(externalIds: Set<Long>): List<Issue>
 }

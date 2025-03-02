@@ -29,7 +29,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.rememberAsyncImagePainter
 import com.home.reader.ui.AppViewModelProvider
 import com.home.reader.ui.common.component.KeepScreenOn
-import com.home.reader.ui.reader.state.ReaderState
+import com.home.reader.ui.reader.configuration.ReaderConfig
 import com.home.reader.ui.reader.viewmodel.ReaderViewModel
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -38,14 +38,11 @@ import kotlinx.coroutines.withContext
 @Composable
 fun ReaderScreen(
     viewModel: ReaderViewModel = viewModel(factory = AppViewModelProvider.Factory),
-    id: Long,
-    currentPage: Int = 0,
-    lastPage: Int,
-    mode: ReaderState.ReaderMode
+    config: ReaderConfig
 ) {
 
     val state by remember {
-        viewModel.initState(id, currentPage, lastPage, mode)
+        viewModel.initState(config)
         viewModel.state
     }
 

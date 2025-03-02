@@ -28,4 +28,6 @@ interface IssueRepository {
     suspend fun updateIssue(id: Long, issue: String)
 
     suspend fun changeSeriesId(oldId: Long, newId: Long)
+
+    suspend fun getCached(externalIds: Set<Long>): List<Issue>
 }

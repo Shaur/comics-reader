@@ -46,14 +46,14 @@ fun NavigationMenu(
                 NavigationDrawerItem(
                     label = { Text(text = "My shelf") },
                     selected = false,
-                    onClick = { controller.navigate(NavigationRoutes.Authenticated.Series.route) }
+                    onClick = { controller.navigate(NavigationRoutes.Authenticated.Series) }
                 )
 
                 if (loginState.value != null) {
                     NavigationDrawerItem(
                         label = { Text(text = "Catalogue") },
                         selected = false,
-                        onClick = { controller.navigate(NavigationRoutes.Authenticated.Catalogue.route) }
+                        onClick = { controller.navigate(NavigationRoutes.Authenticated.Catalogue) }
                     )
                 }
             }

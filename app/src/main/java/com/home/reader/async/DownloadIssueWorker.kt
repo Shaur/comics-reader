@@ -64,7 +64,7 @@ class DownloadIssueWorker(
                     issueDir.resolve(filename).toPath(),
                     StandardCopyOption.REPLACE_EXISTING
                 )
-                setProgress(progressData(i, issueDto.pagesCount))
+                setProgressAsync(progressData(externalIssueId, i, issueDto.pagesCount))
             }
         }
 
@@ -76,10 +76,11 @@ class DownloadIssueWorker(
         return Result.success(output)
     }
 
-    private fun progressData(currentPage: Int, pagesCount: Int): Data {
-        val progress = ((currentPage + 1.0) / pagesCount) * 100
+    private fun progressData(issueId: Long, currentPage: Int, pagesCount: Int): Data {
+        val progress = ((currentPage + 1f) / pagesCount) * 100
         return Data.Builder()
-            .putDouble(DOWNLOAD_WORKER_PROGRESS, progress)
+            .putLong(DOWNLOAD_WORKER_ISSUE_ID, issueId)
+            .putFloat(DOWNLOAD_WORKER_PROGRESS, progress)
             .build()
     }
 

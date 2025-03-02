@@ -1,3 +1,7 @@
+plugins {
+    id 'org.jetbrains.kotlin.plugin.serialization' version '1.9.21'
+}
+
 apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-kapt'
@@ -87,6 +91,7 @@ dependencies {
     //Image loader
     implementation "io.coil-kt:coil-compose:2.7.0"
 
+    implementation "org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.3"
 
     //For REST api
     implementation 'com.squareup.okhttp3:okhttp:5.0.0-alpha.12'

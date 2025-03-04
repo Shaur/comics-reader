@@ -60,8 +60,8 @@ class ApiHandler(private val userRepository: UserRepository) {
         throw TokenUpdateFailedException()
     }
 
-    suspend fun getAllSeries(): List<SeriesDto> {
-        return withToken { processor.getAllSeries(it) }
+    suspend fun getAllSeries(limit: Int = 20, offset: Int = 0): List<SeriesDto> {
+        return withToken { processor.getAllSeries(it, limit, offset) }
     }
 
     suspend fun getSeries(id: Long): SeriesDto {

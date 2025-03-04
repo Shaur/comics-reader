@@ -45,7 +45,7 @@ fun NavGraphBuilder.authenticatedGraph(
 
     composable<NavigationRoutes.Unauthenticated.Login> {
         NavigationMenu(loginState, controller) {
-            LoginScreen(navigateOnSuccess = { controller.navigate(route = NavigationRoutes.Authenticated.Series.route) })
+            LoginScreen(navigateOnSuccess = { controller.navigate(NavigationRoutes.Authenticated.Series) })
         }
     }
 

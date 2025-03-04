@@ -6,6 +6,11 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.paging.Pager
+import androidx.paging.PagingConfig
+import androidx.paging.PagingData
+import androidx.paging.RemoteMediator
+import androidx.paging.cachedIn
 import androidx.work.Data
 import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.WorkInfo
@@ -14,8 +19,10 @@ import com.home.reader.api.ApiHandler
 import com.home.reader.api.dto.IssueDto
 import com.home.reader.api.dto.SeriesDto
 import com.home.reader.async.DownloadIssueWorker
+import com.home.reader.async.SeriesPagingSource
 import com.home.reader.persistence.repository.IssueRepository
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.launch
 
 class CatalogueViewModel(
@@ -24,18 +31,29 @@ class CatalogueViewModel(
     private val issueRepository: IssueRepository
 ) : ViewModel() {
 
-    var seriesState = mutableStateOf<List<SeriesDto>>(listOf())
+//    var seriesState = mutableStateOf<List<SeriesDto>>(listOf())
+
+    val seriesState: Flow<PagingData<SeriesDto>> = Pager(
+        config = PagingConfig(
+            pageSize = 20,
+            enablePlaceholders = false
+        ),
+        pagingSourceFactory = { SeriesPagingSource(api) },
+    )
+        .flow
+        .cachedIn(viewModelScope)
+
     var issuesState = mutableStateOf<List<IssueDto>>(listOf())
     var downloadProgress = mutableStateOf<Map<Long, Float>>(mapOf())
     var cached = mutableStateOf<Map<Long, Boolean>>(mapOf())
 
     private val workerManager = WorkManager.getInstance(context)
 
-    init {
-        viewModelScope.launch(Dispatchers.IO) {
-            seriesState.value = api.getAllSeries()
-        }
-    }
+//    init {
+//        viewModelScope.launch(Dispatchers.IO) {
+//            seriesState.value = api.getAllSeries()
+//        }
+//    }
 
     fun refreshIssuesState(seriesId: Long) {
         viewModelScope.launch(Dispatchers.IO) {

@@ -52,10 +52,10 @@ class ApiProcessor(private val host: String) {
         return client.newCall(request).execute().toResult<Token>()
     }
 
-    fun getAllSeries(token: String): Result<List<SeriesDto>> {
+    fun getAllSeries(token: String, limit: Int, offset: Int): Result<List<SeriesDto>> {
         val request = Request.Builder()
             .get()
-            .url("$host$SERIES")
+            .url("$host$SERIES?limit=$limit&offset=$offset")
             .addAuthorizationHeader(token)
             .build()
 

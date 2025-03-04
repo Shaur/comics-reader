@@ -51,7 +51,7 @@ fun CatalogueSeriesItem(
             modifier = Modifier.width(COVER_WIDTH)
         )
         Text(
-            text = "0/${item.issuesCount}",
+            text = "${item.completedIssuesCount}/${item.issuesCount}",
             fontSize = 12.sp,
             lineHeight = 13.sp
         )

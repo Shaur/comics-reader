@@ -11,7 +11,7 @@ sealed class NavigationRoutes {
         object NavigationRoute : Unauthenticated(route = "unauthenticated")
 
         @Serializable
-        object Login : Unauthenticated(route = "login")
+        data object Login : Unauthenticated(route = "login")
 
     }
 

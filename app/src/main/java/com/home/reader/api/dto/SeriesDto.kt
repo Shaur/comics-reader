@@ -5,6 +5,7 @@ data class SeriesDto(
     val title: String,
     val publisher: String,
     val issuesCount: Int,
+    val completedIssuesCount: Int,
     val cover: String,
     val subscribed: Boolean = false
 )

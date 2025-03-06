@@ -24,7 +24,7 @@ import com.home.reader.utils.Constants.Sizes.COVER_WIDTH
 fun CatalogueSeriesItem(
     item: SeriesDto,
     coverUrl: String,
-    onClick: (id: Long, name: String) -> Unit
+    onClick: () -> Unit
 ) {
 
     Column(
@@ -33,7 +33,7 @@ fun CatalogueSeriesItem(
         modifier = Modifier
             .padding(3.dp)
             .combinedClickable(
-                onClick = { onClick(item.id, item.title) }
+                onClick = onClick
             )
     ) {
         AsyncImage(

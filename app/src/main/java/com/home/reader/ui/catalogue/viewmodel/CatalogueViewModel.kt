@@ -9,7 +9,6 @@ import androidx.lifecycle.viewModelScope
 import androidx.paging.Pager
 import androidx.paging.PagingConfig
 import androidx.paging.PagingData
-import androidx.paging.RemoteMediator
 import androidx.paging.cachedIn
 import androidx.work.Data
 import androidx.work.OneTimeWorkRequestBuilder
@@ -64,7 +63,7 @@ class CatalogueViewModel(
         }
     }
 
-    fun coverRequest(url: String): String = api.buildImageUrl(url)
+    fun coverRequest(url: String, size: String = "ORIGINAL"): String = api.buildImageUrl(url, size)
 
     fun download(seriesId: Long, issueId: Long) {
         val data = Data.Builder()

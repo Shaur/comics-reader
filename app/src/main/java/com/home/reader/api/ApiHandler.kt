@@ -80,7 +80,7 @@ class ApiHandler(private val userRepository: UserRepository) {
         withToken { processor.updateProgress(issueId, currentPage, it) }
     }
 
-    fun buildImageUrl(url: String): String = processor.buildImageUrl(url)
+    fun buildImageUrl(url: String, size: String = "ORIGINAL"): String = processor.buildImageUrl(url, size)
 
     private suspend fun <T> withToken(action: (String) -> Result<T>): T {
         val user = userRepository.get() ?: throw Unauthorized()

@@ -77,7 +77,12 @@ class ReaderViewModel(
                 ReaderMode.REMOTE -> api.updateProgress(state.value.externalId!!, page)
                 ReaderMode.LOCAL -> issueRepository.updateState(state.value.id!!, page)
                 else -> {
-                    api.updateProgress(state.value.externalId!!, page)
+                    try {
+                        api.updateProgress(state.value.externalId!!, page)
+                    } catch (ex: Exception) {
+                        //TODO save to database and post later
+                    }
+
                     issueRepository.updateState(state.value.id!!, page)
                 }
             }
@@ -89,7 +94,7 @@ class ReaderViewModel(
         if (currentPage == state.value.lastPage) return
 
         state.value = state.value.copy(currentPage = currentPage + 1)
-        action.invoke(state.value.currentPage)
+        action(state.value.currentPage)
     }
 
     private fun prevPage(action: (Int) -> Unit) {

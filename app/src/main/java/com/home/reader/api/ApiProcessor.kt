@@ -62,8 +62,8 @@ class ApiProcessor(private val host: String) {
         return client.newCall(request).execute().toResult(SERIES_RESULT_TYPE)
     }
 
-    fun buildImageUrl(url: String): String {
-        return host + url
+    fun buildImageUrl(url: String, size: String): String {
+        return "$host$url?size=$size"
     }
 
     fun getIssues(seriesId: Long, token: String): Result<List<IssueDto>> {

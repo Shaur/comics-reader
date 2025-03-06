@@ -51,7 +51,7 @@ class DownloadIssueWorker(
 
             val cover = coversPath().resolve("$issueId.jpg")
             Files.copy(
-                URL(api.buildImageUrl("/pages/$externalIssueId/0")).openStream(),
+                URL(api.buildImageUrl("/pages/$externalIssueId/0", "ORIGINAL")).openStream(),
                 cover,
                 StandardCopyOption.REPLACE_EXISTING
             )

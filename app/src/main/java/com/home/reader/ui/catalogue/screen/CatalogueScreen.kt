@@ -1,5 +1,6 @@
 package com.home.reader.ui.catalogue.screen
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.grid.GridCells
@@ -16,6 +17,7 @@ import androidx.paging.LoadState
 import androidx.paging.compose.collectAsLazyPagingItems
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Text
+import androidx.compose.runtime.LaunchedEffect
 import com.home.reader.api.dto.SeriesDto
 import com.home.reader.ui.AppViewModelProvider
 import com.home.reader.ui.catalogue.component.CatalogueIssueItem
@@ -37,59 +39,65 @@ fun CatalogueScreen(
     val downloadProgressState by remember { viewModel.downloadProgress }
     val cached by remember { viewModel.cached }
 
+    LaunchedEffect(selectedSeries) {
+        val seriesId = selectedSeries?.id
+        if (seriesId != null) {
+            viewModel.refreshIssuesState(seriesId)
+        }
+    }
+
     Column {
-        Column {
-            LazyVerticalGrid(
-                columns = GridCells.Adaptive(COVER_WIDTH + if (selectedSeries == null) 0.dp else 30.dp)
-            ) {
+        BackHandler(enabled = (selectedSeries != null)) {
+            selectedSeries = null
+        }
 
-                if (selectedSeries == null) {
-                    items(seriesState.itemCount) { index ->
-                        val item = seriesState[index]
-                        if (item != null) {
-                            CatalogueSeriesItem(
-                                item = item,
-                                coverUrl = viewModel.coverRequest(item.cover),
-                                onClick = { seriesId, _ ->
-                                    viewModel.refreshIssuesState(seriesId)
-                                    selectedSeries = item
-                                }
-                            )
-                        }
-                    }
+        LazyVerticalGrid(
+            columns = GridCells.Adaptive(COVER_WIDTH + if (selectedSeries == null) 0.dp else 30.dp)
+        ) {
 
-                    if (seriesState.loadState.append is LoadState.Loading) {
-                        item {
-                            CircularProgressIndicator(modifier = Modifier.padding(16.dp))
-                        }
-                    }
-
-                    if (seriesState.loadState.append is LoadState.Error) {
-                        item {
-                            Text(
-                                text = "Error loading more items",
-                                modifier = Modifier.padding(16.dp)
-                            )
-                        }
+            if (selectedSeries == null) {
+                items(seriesState.itemCount) { index ->
+                    val item = seriesState[index]
+                    if (item != null) {
+                        CatalogueSeriesItem(
+                            item = item,
+                            coverUrl = viewModel.coverRequest(item.cover, "MEDIUM"),
+                            onClick = { selectedSeries = item }
+                        )
                     }
                 }
 
-                if (selectedSeries != null) {
-                    items(issuesState) {
-                        CatalogueIssueItem(
-                            item = it,
-                            seriesName = selectedSeries?.title ?: "",
-                            coverUrl = viewModel.coverRequest("/pages/${it.id}/0"),
-                            onClick = onNavigateToReaderScreen,
-                            downloadProgress = downloadProgressState[it.id],
-                            cached = cached[it.id] ?: false,
-                            onDownloadClick = {
-                                val issueId = it.id
-                                val seriesId = selectedSeries?.id ?: 0L
-                                viewModel.download(seriesId, issueId)
-                            }
+                if (seriesState.loadState.append is LoadState.Loading) {
+                    item {
+                        CircularProgressIndicator(modifier = Modifier.padding(16.dp))
+                    }
+                }
+
+                if (seriesState.loadState.append is LoadState.Error) {
+                    item {
+                        Text(
+                            text = "Error loading more items",
+                            modifier = Modifier.padding(16.dp)
                         )
                     }
+                }
+            }
+
+            if (selectedSeries != null) {
+                items(issuesState) {
+                    CatalogueIssueItem(
+                        item = it,
+                        seriesName = selectedSeries?.title ?: "",
+                        coverUrl = viewModel.coverRequest("/pages/${it.id}/0", "MEDIUM"),
+                        onClick = onNavigateToReaderScreen,
+                        downloadProgress = downloadProgressState[it.id],
+                        cached = cached[it.id] ?: false,
+                        onDownloadClick = {
+                            val issueId = it.id
+                            val seriesId = selectedSeries?.id ?: 0L
+                            viewModel.download(seriesId, issueId)
+                        }
+                    )
                 }
             }
         }

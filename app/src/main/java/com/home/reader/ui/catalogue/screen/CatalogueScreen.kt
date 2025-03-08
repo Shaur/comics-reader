@@ -50,7 +50,6 @@ fun CatalogueScreen(
         BackHandler(enabled = (selectedSeries != null)) {
             selectedSeries = null
         }
-
         LazyVerticalGrid(
             columns = GridCells.Adaptive(COVER_WIDTH + if (selectedSeries == null) 0.dp else 30.dp)
         ) {
@@ -91,7 +90,7 @@ fun CatalogueScreen(
                         coverUrl = viewModel.coverRequest("/pages/${it.id}/0", "MEDIUM"),
                         onClick = onNavigateToReaderScreen,
                         downloadProgress = downloadProgressState[it.id],
-                        cached = cached[it.id] ?: false,
+                        cached = (cached[it.id] == true),
                         onDownloadClick = {
                             val issueId = it.id
                             val seriesId = selectedSeries?.id ?: 0L

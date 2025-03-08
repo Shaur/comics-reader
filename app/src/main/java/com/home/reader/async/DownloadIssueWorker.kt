@@ -64,7 +64,7 @@ class DownloadIssueWorker(
                     issueDir.resolve(filename).toPath(),
                     StandardCopyOption.REPLACE_EXISTING
                 )
-                setProgressAsync(progressData(externalIssueId, i, issueDto.pagesCount))
+                setProgress(progressData(externalIssueId, i, issueDto.pagesCount))
             }
         }
 
@@ -98,12 +98,12 @@ class DownloadIssueWorker(
 
         var issue = issueRepository.findBySeriesIdAndIssue(series.id!!, issueDto.number)
         if (issue?.id != null) {
-            return series.id!! to issue.id!!
+            return series.id to issue.id!!
         }
 
         issue = Issue(
             issue = issueDto.number,
-            seriesId = series.id!!,
+            seriesId = series.id,
             currentPage = issueDto.currentPage,
             pagesCount = issueDto.pagesCount,
             externalId = issueDto.id
@@ -111,6 +111,6 @@ class DownloadIssueWorker(
 
         val issueId = issueRepository.insert(issue)
 
-        return series.id!! to issueId
+        return series.id to issueId
     }
 }

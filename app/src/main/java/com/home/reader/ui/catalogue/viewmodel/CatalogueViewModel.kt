@@ -30,8 +30,6 @@ class CatalogueViewModel(
     private val issueRepository: IssueRepository
 ) : ViewModel() {
 
-//    var seriesState = mutableStateOf<List<SeriesDto>>(listOf())
-
     val seriesState: Flow<PagingData<SeriesDto>> = Pager(
         config = PagingConfig(
             pageSize = 20,
@@ -47,12 +45,6 @@ class CatalogueViewModel(
     var cached = mutableStateOf<Map<Long, Boolean>>(mapOf())
 
     private val workerManager = WorkManager.getInstance(context)
-
-//    init {
-//        viewModelScope.launch(Dispatchers.IO) {
-//            seriesState.value = api.getAllSeries()
-//        }
-//    }
 
     fun refreshIssuesState(seriesId: Long) {
         viewModelScope.launch(Dispatchers.IO) {

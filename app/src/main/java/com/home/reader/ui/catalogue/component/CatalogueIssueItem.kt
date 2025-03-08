@@ -105,7 +105,12 @@ fun CatalogueIssueItem(
                 modifier = Modifier.width(110.dp),
             )
 
-            Text(text = "$seriesName #${item.number}", fontSize = 12.sp, lineHeight = 14.sp)
+            Text(
+                text = "$seriesName #${item.number}",
+                fontSize = 12.sp,
+                lineHeight = 14.sp,
+                modifier = Modifier.width(COVER_WIDTH)
+            )
         }
     }
 }

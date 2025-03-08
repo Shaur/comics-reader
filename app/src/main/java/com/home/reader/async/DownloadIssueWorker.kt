@@ -96,14 +96,15 @@ class DownloadIssueWorker(
             series = series.copy(id = seriesId)
         }
 
-        var issue = issueRepository.findBySeriesIdAndIssue(series.id!!, issueDto.number)
+        val seriesId = series.id!!
+        var issue = issueRepository.findBySeriesIdAndIssue(seriesId, issueDto.number)
         if (issue?.id != null) {
-            return series.id to issue.id!!
+            return seriesId to issue.id!!
         }
 
         issue = Issue(
             issue = issueDto.number,
-            seriesId = series.id,
+            seriesId = seriesId,
             currentPage = issueDto.currentPage,
             pagesCount = issueDto.pagesCount,
             externalId = issueDto.id
@@ -111,6 +112,6 @@ class DownloadIssueWorker(
 
         val issueId = issueRepository.insert(issue)
 
-        return series.id to issueId
+        return seriesId to issueId
     }
 }

@@ -79,7 +79,7 @@ class CatalogueViewModel(
         Log.i("Download", "Download progress $issueId $progress%")
         downloadProgress.value += (issueId to progress)
 
-        if (it.state == WorkInfo.State.SUCCEEDED) {
+        if (it.state == WorkInfo.State.SUCCEEDED || progress == 1f) {
             cached.value += (issueId to true)
         }
     }

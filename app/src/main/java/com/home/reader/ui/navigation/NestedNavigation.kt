@@ -20,7 +20,7 @@ fun NavGraphBuilder.authenticatedGraph(
     loginState: MutableState<User?> = mutableStateOf(null)
 ) {
     composable<NavigationRoutes.Authenticated.Series> {
-        NavigationMenu(loginState, controller) {
+        NavigationMenu(loginState = loginState, controller = controller) {
             SeriesScreen(
                 loginState = loginState,
                 onNavigateToIssuesScreen = { id, name ->
@@ -32,7 +32,7 @@ fun NavGraphBuilder.authenticatedGraph(
 
     composable<NavigationRoutes.Authenticated.Issues> {
         val config: NavigationRoutes.Authenticated.Issues = it.toRoute()
-        NavigationMenu(loginState, controller) {
+        NavigationMenu(loginState = loginState, controller = controller) {
             IssuesScreen(
                 seriesId = config.seriesId,
                 seriesName = config.name,
@@ -44,13 +44,13 @@ fun NavGraphBuilder.authenticatedGraph(
     composable<ReaderConfig> { ReaderScreen(config = it.toRoute()) }
 
     composable<NavigationRoutes.Unauthenticated.Login> {
-        NavigationMenu(loginState, controller) {
+        NavigationMenu(loginState = loginState, controller = controller) {
             LoginScreen(navigateOnSuccess = { controller.navigate(NavigationRoutes.Authenticated.Series) })
         }
     }
 
     composable<NavigationRoutes.Authenticated.Catalogue> {
-        NavigationMenu(loginState, controller) {
+        NavigationMenu(loginState = loginState, controller = controller) {
             CatalogueScreen(
                 onNavigateToReaderScreen = { config -> controller.navigate(config) }
             )

@@ -10,6 +10,7 @@ import com.home.reader.ui.issues.viewmodel.IssuesViewModel
 import com.home.reader.ui.login.viewmodel.LoginViewModel
 import com.home.reader.ui.reader.viewmodel.ReaderViewModel
 import com.home.reader.ui.series.viewmodel.SeriesViewModel
+import com.home.reader.ui.common.component.viewmodel.NavigationMenuViewModel
 
 object AppViewModelProvider {
     val Factory = viewModelFactory {
@@ -49,6 +50,12 @@ object AppViewModelProvider {
                 context = readerApplication().applicationContext,
                 api = readerApplication().container.api,
                 issueRepository = readerApplication().container.issueRepository
+            )
+        }
+
+        initializer {
+            NavigationMenuViewModel(
+                userRepository = readerApplication().container.userRepository
             )
         }
     }

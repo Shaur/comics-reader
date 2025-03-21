@@ -12,18 +12,22 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.home.reader.persistence.entity.User
+import com.home.reader.ui.AppViewModelProvider
+import com.home.reader.ui.common.component.viewmodel.NavigationMenuViewModel
 import com.home.reader.ui.navigation.NavigationRoutes
 
 @Composable
 fun NavigationMenu(
+    viewModel: NavigationMenuViewModel = viewModel(factory = AppViewModelProvider.Factory),
     loginState: MutableState<User?>,
     controller: NavController,
     content: @Composable () -> Unit
 ) {
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
-
+    loginState.value = viewModel.loginState.value
 
     ModalNavigationDrawer(
         drawerState = drawerState,

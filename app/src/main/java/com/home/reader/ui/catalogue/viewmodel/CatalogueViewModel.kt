@@ -20,6 +20,7 @@ import com.home.reader.api.dto.SeriesDto
 import com.home.reader.async.DownloadIssueWorker
 import com.home.reader.async.SeriesPagingSource
 import com.home.reader.persistence.repository.IssueRepository
+import com.home.reader.utils.Constants.DEFAULT_PAGE_SIZE
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.launch
@@ -32,8 +33,8 @@ class CatalogueViewModel(
 
     val seriesState: Flow<PagingData<SeriesDto>> = Pager(
         config = PagingConfig(
-            pageSize = 20,
-            enablePlaceholders = false
+            pageSize = DEFAULT_PAGE_SIZE,
+            enablePlaceholders = true
         ),
         pagingSourceFactory = { SeriesPagingSource(api) },
     )

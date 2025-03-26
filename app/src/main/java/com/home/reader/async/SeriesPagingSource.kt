@@ -5,6 +5,7 @@ import androidx.paging.PagingSource
 import androidx.paging.PagingState
 import com.home.reader.api.ApiHandler
 import com.home.reader.api.dto.SeriesDto
+import com.home.reader.utils.Constants.DEFAULT_PAGE_SIZE
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
@@ -30,7 +31,7 @@ class SeriesPagingSource(private val api: ApiHandler) : PagingSource<Int, Series
             return LoadResult.Page(
                 data = items.dropLast(1),
                 prevKey = if (page == 0) null else page - 1,
-                nextKey = if (items.size <= params.loadSize) null else page + 1
+                nextKey = if (items.size <= params.loadSize) null else page + (pageSize / DEFAULT_PAGE_SIZE)
             )
         } catch (ex: Exception) {
             return LoadResult.Error(ex)

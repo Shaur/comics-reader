@@ -6,22 +6,18 @@ import kotlinx.serialization.Serializable
 sealed class NavigationRoutes {
 
     @Serializable
-    sealed class Unauthenticated(val route: String): NavigationRoutes() {
-
-        object NavigationRoute : Unauthenticated(route = "unauthenticated")
+    sealed class Unauthenticated(): NavigationRoutes() {
 
         @Serializable
-        data object Login : Unauthenticated(route = "login")
+        data object Login : Unauthenticated()
 
     }
 
     @Serializable
-    sealed class Authenticated(val route: String): NavigationRoutes() {
-
-        object NavigationRoute : Authenticated(route = "authenticated")
+    sealed class Authenticated(): NavigationRoutes() {
 
         @Serializable
-        object Series : Authenticated(route = "Series")
+        object Series : Authenticated()
 
         @Serializable
         data class Issues(
@@ -29,10 +25,8 @@ sealed class NavigationRoutes {
             val name: String
         )
 
-        object Reader : Authenticated(route = "Reader")
-
         @Serializable
-        object Catalogue : Authenticated(route = "Catalogue")
+        object Catalogue : Authenticated()
     }
 
 }

@@ -20,21 +20,6 @@ object Constants {
         val COVER_HEIGHT = 177.dp
     }
 
-    object ArgumentsPlaceholder {
-        const val LAST_PAGE = "/{lastPage}"
-        const val CURRENT_PAGE = "/{currentPage}"
-        const val ISSUE_ID = "/{issueId}"
-        const val SERIES_ID = "/{seriesId}"
-        const val SERIES_NAME = "/{seriesName}"
-        const val READER_MODE = "/{readerMode}"
-    }
+    const val DEFAULT_PAGE_SIZE = 20
 
-    object Argument {
-        const val LAST_PAGE = "lastPage"
-        const val CURRENT_PAGE = "currentPage"
-        const val ISSUE_ID = "issueId"
-        const val SERIES_ID = "seriesId"
-        const val SERIES_NAME = "seriesName"
-        const val READER_MODE = "readerMode"
-    }
 }

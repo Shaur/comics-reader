@@ -60,7 +60,7 @@ fun CatalogueScreen(
                     if (item != null) {
                         CatalogueSeriesItem(
                             item = item,
-                            coverUrl = viewModel.coverRequest(item.cover, "MEDIUM"),
+                            coverUrl = viewModel.coverRequest(item.cover, "SMALL"),
                             onClick = { selectedSeries = item }
                         )
                     }
@@ -87,7 +87,7 @@ fun CatalogueScreen(
                     CatalogueIssueItem(
                         item = it,
                         seriesName = selectedSeries?.title ?: "",
-                        coverUrl = viewModel.coverRequest("/pages/${it.id}/0", "MEDIUM"),
+                        coverUrl = viewModel.coverRequest("/pages/${it.id}/0", "SMALL"),
                         onClick = onNavigateToReaderScreen,
                         downloadProgress = downloadProgressState[it.id],
                         cached = (cached[it.id] == true),

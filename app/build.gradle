@@ -95,6 +95,8 @@ dependencies {
     //Image loader
     implementation "io.coil-kt:coil-compose:2.7.0"
 
+    implementation "com.google.accompanist:accompanist-drawablepainter:0.32.0"
+
     implementation "org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.3"
 
     //For REST api

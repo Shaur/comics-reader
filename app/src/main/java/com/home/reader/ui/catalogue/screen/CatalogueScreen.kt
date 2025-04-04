@@ -18,7 +18,7 @@ import androidx.paging.compose.collectAsLazyPagingItems
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Text
 import androidx.compose.runtime.LaunchedEffect
-import com.home.reader.api.dto.SeriesDto
+import androidx.compose.runtime.saveable.rememberSaveable
 import com.home.reader.ui.AppViewModelProvider
 import com.home.reader.ui.catalogue.component.CatalogueIssueItem
 import com.home.reader.ui.catalogue.component.CatalogueSeriesItem
@@ -35,33 +35,36 @@ fun CatalogueScreen(
 
     val seriesState = viewModel.seriesState.collectAsLazyPagingItems()
     val issuesState by remember { viewModel.issuesState }
-    var selectedSeries by remember { mutableStateOf<SeriesDto?>(null) }
+    var selectedSeriesId by rememberSaveable { mutableStateOf<Long?>(null) }
+    var selectedSeriesName by rememberSaveable { mutableStateOf<String?>(null) }
     val downloadProgressState by remember { viewModel.downloadProgress }
     val cached by remember { viewModel.cached }
 
-    LaunchedEffect(selectedSeries) {
-        val seriesId = selectedSeries?.id
-        if (seriesId != null) {
-            viewModel.refreshIssuesState(seriesId)
-        }
+    LaunchedEffect(selectedSeriesId) {
+        selectedSeriesId?.let { viewModel.refreshIssuesState(it) }
+        if (selectedSeriesId == null) seriesState.refresh()
     }
 
     Column {
-        BackHandler(enabled = (selectedSeries != null)) {
-            selectedSeries = null
+        BackHandler(enabled = (selectedSeriesId != null)) {
+            selectedSeriesId = null
         }
+
         LazyVerticalGrid(
-            columns = GridCells.Adaptive(COVER_WIDTH + if (selectedSeries == null) 0.dp else 30.dp)
+            columns = GridCells.Adaptive(COVER_WIDTH + if (selectedSeriesId == null) 0.dp else 30.dp)
         ) {
 
-            if (selectedSeries == null) {
+            if (selectedSeriesId == null) {
                 items(seriesState.itemCount) { index ->
                     val item = seriesState[index]
                     if (item != null) {
                         CatalogueSeriesItem(
                             item = item,
                             coverUrl = viewModel.coverRequest(item.cover, "SMALL"),
-                            onClick = { selectedSeries = item }
+                            onClick = {
+                                selectedSeriesId = item.id
+                                selectedSeriesName = item.title
+                            }
                         )
                     }
                 }
@@ -82,18 +85,18 @@ fun CatalogueScreen(
                 }
             }
 
-            if (selectedSeries != null) {
+            if (selectedSeriesId != null) {
                 items(issuesState) {
                     CatalogueIssueItem(
                         item = it,
-                        seriesName = selectedSeries?.title ?: "",
+                        seriesName = selectedSeriesName ?: "",
                         coverUrl = viewModel.coverRequest("/pages/${it.id}/0", "SMALL"),
                         onClick = onNavigateToReaderScreen,
                         downloadProgress = downloadProgressState[it.id],
                         cached = (cached[it.id] == true),
                         onDownloadClick = {
                             val issueId = it.id
-                            val seriesId = selectedSeries?.id ?: 0L
+                            val seriesId = selectedSeriesId ?: 0L
                             viewModel.download(seriesId, issueId)
                         }
                     )

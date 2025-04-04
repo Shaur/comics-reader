@@ -80,32 +80,34 @@ fun ReaderScreen(
                 snapPositionalThreshold = 0.15f
             )
         ) { page ->
-            key(state.filler) {
-                Image(
-                    painter = rememberAsyncImagePainter(
-                        viewModel.requestPage(page),
-                        filterQuality = FilterQuality.High
-                    ),
-                    contentDescription = "Page $page",
-                    contentScale = state.filler.scale,
-                    modifier = Modifier
-                        .filler(rememberScrollState(), rememberScrollState())
-                        .pointerInput(Unit) {
-                            detectTapGestures(
-                                onDoubleTap = { viewModel.resolverFiller() },
-                                onLongPress = { showProgress = !showProgress },
-                                onTap = { offset ->
-                                    viewModel.resolveClick(screenWidthInPx, offset.x) {
-                                        coroutineScope.launch {
-                                            withContext(this.coroutineContext) {
-                                                pagerState.animateScrollToPage(it)
+            Box {
+                key(state.filler) {
+                    Image(
+                        painter = rememberAsyncImagePainter(
+                            viewModel.requestPage(page),
+                            filterQuality = FilterQuality.High
+                        ),
+                        contentDescription = "Page $page",
+                        contentScale = state.filler.scale,
+                        modifier = Modifier
+                            .filler(rememberScrollState(), rememberScrollState())
+                            .pointerInput(Unit) {
+                                detectTapGestures(
+                                    onDoubleTap = { viewModel.resolverFiller() },
+                                    onLongPress = { showProgress = !showProgress },
+                                    onTap = { offset ->
+                                        viewModel.resolveClick(screenWidthInPx, offset.x) {
+                                            coroutineScope.launch {
+                                                withContext(this.coroutineContext) {
+                                                    pagerState.animateScrollToPage(it)
+                                                }
                                             }
                                         }
                                     }
-                                }
-                            )
-                        }
-                )
+                                )
+                            }
+                    )
+                }
             }
         }
 

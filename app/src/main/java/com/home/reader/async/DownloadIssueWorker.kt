@@ -78,6 +78,7 @@ class DownloadIssueWorker(
 
     private fun progressData(issueId: Long, currentPage: Int, pagesCount: Int): Data {
         val progress = (currentPage + 1f) / pagesCount
+
         return Data.Builder()
             .putLong(DOWNLOAD_WORKER_ISSUE_ID, issueId)
             .putFloat(DOWNLOAD_WORKER_PROGRESS, progress)

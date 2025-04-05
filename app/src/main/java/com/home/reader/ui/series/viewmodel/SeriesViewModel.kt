@@ -61,7 +61,8 @@ class SeriesViewModel(
         }
     }
 
-    private val importFileObserver = Observer<WorkInfo> {
+    private val importFileObserver = Observer<WorkInfo?> {
+        if (it == null) return@Observer
         val seriesId = it.outputData.getLong(IMPORT_WORKER_SERIES_ID_KEY, -1L)
 
         if (seriesId != -1L) {

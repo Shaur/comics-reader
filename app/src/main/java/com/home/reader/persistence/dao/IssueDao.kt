@@ -52,4 +52,7 @@ interface IssueDao : IssueRepository {
 
     @Query("select * from issues where external_id in (:externalIds)")
     override suspend fun getCached(externalIds: Set<Long>): List<Issue>
+
+    @Query("select * from issues where external_id is not null and current_page + 1 != pages_count")
+    override suspend fun issuesForUpdate(): List<Issue>
 }

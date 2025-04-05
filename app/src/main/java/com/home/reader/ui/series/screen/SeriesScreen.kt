@@ -21,6 +21,7 @@ import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -61,11 +62,21 @@ fun SeriesScreen(
         android.Manifest.permission.READ_EXTERNAL_STORAGE
     )
 
+    val notificationPermission = rememberPermissionState(
+        android.Manifest.permission.POST_NOTIFICATIONS
+    )
+
     val chooseFileLauncher = rememberLauncherForActivityResult(
         ActivityResultContracts.OpenMultipleDocuments(), viewModel::loadIssues
     )
 
     viewModel.refresh()
+
+    LaunchedEffect(Unit) {
+        if (!notificationPermission.status.isGranted) {
+            notificationPermission.launchPermissionRequest()
+        }
+    }
 
     Scaffold(
         floatingActionButton = {

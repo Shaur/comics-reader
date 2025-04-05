@@ -13,6 +13,11 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.rememberNavController
+import androidx.work.Constraints
+import androidx.work.NetworkType
+import androidx.work.OneTimeWorkRequestBuilder
+import androidx.work.WorkManager
+import com.home.reader.async.IssuesUpdatesWorker
 import com.home.reader.ui.navigation.NavigationRoutes
 import com.home.reader.ui.navigation.authenticatedGraph
 
@@ -27,6 +32,13 @@ class MainComposeActivity : ComponentActivity() {
                 MainApp()
             }
         }
+
+        val workManager = WorkManager.getInstance(this)
+        val workRequest = OneTimeWorkRequestBuilder<IssuesUpdatesWorker>()
+            .setConstraints(Constraints(NetworkType.CONNECTED))
+            .build()
+
+        workManager.enqueue(workRequest)
     }
 
     @Composable
@@ -40,14 +52,10 @@ class MainComposeActivity : ComponentActivity() {
     }
 
     @Composable
-    fun MainAppNavHost(
-//        modifier: Modifier = Modifier,
-        navController: NavHostController = rememberNavController()
-    ) {
+    fun MainAppNavHost(navController: NavHostController = rememberNavController()) {
         NavHost(
-//            modifier = modifier,
             navController = navController,
-            startDestination = NavigationRoutes.Authenticated.Series//NavigationRoute.route
+            startDestination = NavigationRoutes.Authenticated.Series
         ) {
             authenticatedGraph(controller = navController)
         }

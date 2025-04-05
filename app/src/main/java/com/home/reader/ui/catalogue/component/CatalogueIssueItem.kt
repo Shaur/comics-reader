@@ -77,9 +77,7 @@ fun CatalogueIssueItem(
                     ) {
                         Icon(Icons.Rounded.Check, "Issue cached")
                     }
-                }
-
-                if (downloadProgress == null && !cached) {
+                } else if (downloadProgress == null) {
                     IconButton(
                         onClick = onDownloadClick,
                         modifier = Modifier
@@ -88,7 +86,7 @@ fun CatalogueIssueItem(
                     ) {
                         Icon(Icons.Rounded.AddCircle, "Cache issue")
                     }
-                } else if (downloadProgress != null && !cached) {
+                } else {
                     CircularProgressIndicator(
                         progress = { downloadProgress },
                         modifier = Modifier

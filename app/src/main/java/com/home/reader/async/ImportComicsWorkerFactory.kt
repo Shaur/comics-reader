@@ -5,13 +5,15 @@ import androidx.work.ListenableWorker
 import androidx.work.WorkerFactory
 import androidx.work.WorkerParameters
 import com.home.reader.api.ApiHandler
+import com.home.reader.notification.NotificationHelper
 import com.home.reader.persistence.repository.IssueRepository
 import com.home.reader.persistence.repository.SeriesRepository
 
 class ImportComicsWorkerFactory(
     private val seriesRepository: SeriesRepository,
     private val issueRepository: IssueRepository,
-    private val api: ApiHandler
+    private val api: ApiHandler,
+    private val notificationHelper: NotificationHelper
 ) : WorkerFactory() {
     override fun createWorker(
         appContext: Context,
@@ -32,6 +34,14 @@ class ImportComicsWorkerFactory(
                 issueRepository = issueRepository,
                 api = api,
                 parameters = workerParameters
+            )
+
+            IssuesUpdatesWorker::class.java.name -> IssuesUpdatesWorker(
+                context = appContext,
+                parameters = workerParameters,
+                repository = issueRepository,
+                api = api,
+                notificator = notificationHelper
             )
 
             else -> null

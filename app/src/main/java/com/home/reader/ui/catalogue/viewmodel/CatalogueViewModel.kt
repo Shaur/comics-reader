@@ -74,12 +74,14 @@ class CatalogueViewModel(
         workerManager.enqueue(downloadIssueWorkerRequest)
     }
 
-    private val downloadIssueObserver = Observer<WorkInfo> {
+    private val downloadIssueObserver = Observer<WorkInfo?> {
+        if (it == null) return@Observer
+
         val issueId = it.progress.getLong(DownloadIssueWorker.DOWNLOAD_WORKER_ISSUE_ID, 0)
         val progress = it.progress.getFloat(DownloadIssueWorker.DOWNLOAD_WORKER_PROGRESS, 0f)
-        Log.i("Download", "Download progress $issueId $progress%")
-        downloadProgress.value += (issueId to progress)
 
+        downloadProgress.value += (issueId to progress)
+        Log.i("Downloading", "$issueId $progress ${it.state}")
         if (it.state == WorkInfo.State.SUCCEEDED || progress == 1f) {
             cached.value += (issueId to true)
         }

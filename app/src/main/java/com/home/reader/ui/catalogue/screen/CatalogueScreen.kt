@@ -51,7 +51,8 @@ fun CatalogueScreen(
         }
 
         LazyVerticalGrid(
-            columns = GridCells.Adaptive(COVER_WIDTH + if (selectedSeriesId == null) 0.dp else 30.dp)
+            columns = GridCells.Adaptive(COVER_WIDTH + if (selectedSeriesId == null) 0.dp else 30.dp),
+            modifier = Modifier.padding(top = 10.dp)
         ) {
 
             if (selectedSeriesId == null) {

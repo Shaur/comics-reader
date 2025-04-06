@@ -18,6 +18,7 @@ import com.home.reader.utils.toNormalizedName
 import java.io.InputStream
 import java.nio.file.Files
 import java.nio.file.StandardCopyOption
+import androidx.core.net.toUri
 
 class ImportComicsWorker(
     context: Context,
@@ -41,7 +42,7 @@ class ImportComicsWorker(
 
     override suspend fun doWork(): Result {
         val uriString = inputData.getString(IMPORT_WORKER_URI_KEY)
-        val uri = Uri.parse(uriString)
+        val uri = uriString?.toUri() ?: return Result.failure()
 
         val (fileName, input) = getFileInfo(uri) ?: return Result.failure()
 
@@ -98,16 +99,17 @@ class ImportComicsWorker(
                 series = series.copy(id = seriesId)
             }
 
-            var issue = issueRepository.findBySeriesIdAndIssue(series.id!!, number)
+            val seriesId = series.id!!
+            var issue = issueRepository.findBySeriesIdAndIssue(seriesId, number)
             if (issue?.id != null) {
-                return@with series.id!! to issue.id!!
+                return@with seriesId to issue.id!!
             }
 
-            issue = Issue(issue = number, seriesId = series.id!!)
+            issue = Issue(issue = number, seriesId = seriesId)
 
             val issueId = issueRepository.insert(issue)
 
-            return@with series.id!! to issueId
+            return@with seriesId to issueId
         }
     }
 }

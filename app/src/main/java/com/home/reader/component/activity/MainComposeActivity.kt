@@ -33,12 +33,12 @@ class MainComposeActivity : ComponentActivity() {
             }
         }
 
-        val workManager = WorkManager.getInstance(this)
-        val workRequest = OneTimeWorkRequestBuilder<IssuesUpdatesWorker>()
-            .setConstraints(Constraints(NetworkType.CONNECTED))
-            .build()
-
-        workManager.enqueue(workRequest)
+//        val workManager = WorkManager.getInstance(this)
+//        val workRequest = OneTimeWorkRequestBuilder<IssuesUpdatesWorker>()
+//            .setConstraints(Constraints(NetworkType.CONNECTED))
+//            .build()
+//
+//        workManager.enqueue(workRequest)
     }
 
     @Composable

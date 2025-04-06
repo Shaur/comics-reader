@@ -37,6 +37,7 @@ import com.home.reader.persistence.entity.User
 import com.home.reader.ui.AppViewModelProvider
 import com.home.reader.ui.common.component.BottomSheetButton
 import com.home.reader.ui.common.component.RenameDialog
+import com.home.reader.ui.common.component.UpdateOnResume
 import com.home.reader.ui.series.component.SeriesItem
 import com.home.reader.ui.series.viewmodel.SeriesViewModel
 import com.home.reader.utils.Constants.COMICS_MIME_TYPES
@@ -75,6 +76,12 @@ fun SeriesScreen(
     LaunchedEffect(Unit) {
         if (!notificationPermission.status.isGranted) {
             notificationPermission.launchPermissionRequest()
+        }
+    }
+
+    UpdateOnResume { seriesId: Long, _: Int, completed: Boolean ->
+        if (completed) {
+            viewModel.refresh()
         }
     }
 

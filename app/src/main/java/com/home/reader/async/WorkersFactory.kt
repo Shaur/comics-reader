@@ -9,7 +9,7 @@ import com.home.reader.notification.NotificationHelper
 import com.home.reader.persistence.repository.IssueRepository
 import com.home.reader.persistence.repository.SeriesRepository
 
-class ImportComicsWorkerFactory(
+class WorkersFactory(
     private val seriesRepository: SeriesRepository,
     private val issueRepository: IssueRepository,
     private val api: ApiHandler,

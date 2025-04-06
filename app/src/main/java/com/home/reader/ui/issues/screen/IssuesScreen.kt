@@ -61,7 +61,7 @@ fun IssuesScreen(
             columns = GridCells.Adaptive(Constants.Sizes.COVER_WIDTH),
             modifier = Modifier.padding(innerPadding)
         ) {
-            this.items(state) {
+            items(state) {
                 IssueItem(
                     issue = it,
                     onClick = onNavigateToReaderScreen,

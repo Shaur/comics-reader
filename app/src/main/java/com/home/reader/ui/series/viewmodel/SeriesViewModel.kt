@@ -86,6 +86,18 @@ class SeriesViewModel(
         }
     }
 
+    fun updateCompletedIssue(seriesId: Long) {
+        viewModelScope.launch {
+            val existsSeries = state.value.find { it.id == seriesId }
+            state.value = buildList {
+                if (existsSeries != null) {
+                    add(existsSeries.copy(completedIssues = existsSeries.completedIssues + 1))
+                    addAll(state.value - existsSeries)
+                }
+            }
+        }
+    }
+
     private fun convert(series: Series, issues: List<Issue>): SeriesDto {
         val sortedIssues = issues.sortedWith(
             compareBy<Issue> { it.issue.length }.then(naturalOrder())

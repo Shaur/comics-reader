@@ -48,7 +48,7 @@ class NotificationHelper(private val context: Context) {
             .setContentTitle("Work Complete")
             .setContentText("Background work finished successfully")
             .setSmallIcon(R.drawable.plus_circle_outline)
-            .setPriority(NotificationCompat.PRIORITY_DEFAULT)
+            .setPriority(NotificationCompat.PRIORITY_LOW)
             .setAutoCancel(true)
             .build()
 
@@ -56,6 +56,6 @@ class NotificationHelper(private val context: Context) {
 
         Handler(Looper.getMainLooper()).postDelayed({
             notificationManager.cancel(notificationId)
-        }, 5000)
+        }, 2000)
     }
 }

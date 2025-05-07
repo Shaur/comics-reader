@@ -45,6 +45,7 @@ class DownloadIssueWorker(
 
         val (seriesId, issueId) = resolveIssueId(seriesDto, issueDto)
 
+        setProgress(progressData(externalIssueId, 0, issueDto.pagesCount))
         with(applicationContext) {
             val issueDir = filesDir.resolve(issueId.toString())
             issueDir.mkdirs()
@@ -64,7 +65,7 @@ class DownloadIssueWorker(
                     issueDir.resolve(filename).toPath(),
                     StandardCopyOption.REPLACE_EXISTING
                 )
-                setProgress(progressData(externalIssueId, i, issueDto.pagesCount))
+                setProgress(progressData(externalIssueId, i, issueDto.pagesCount - 1))
             }
         }
 

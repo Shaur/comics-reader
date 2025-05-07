@@ -18,4 +18,7 @@ interface UserDao : UserRepository {
 
     @Update
     override suspend fun update(user: User)
+
+    @Query("delete from user")
+    override suspend fun delete()
 }

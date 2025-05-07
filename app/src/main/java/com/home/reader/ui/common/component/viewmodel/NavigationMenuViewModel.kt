@@ -18,4 +18,11 @@ class NavigationMenuViewModel(
             loginState.value = userRepository.get()
         }
     }
+
+    fun logout() {
+        viewModelScope.launch {
+            userRepository.delete()
+            loginState.value = null
+        }
+    }
 }

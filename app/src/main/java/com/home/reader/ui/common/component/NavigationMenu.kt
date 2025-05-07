@@ -60,6 +60,14 @@ fun NavigationMenu(
                         onClick = { controller.navigate(NavigationRoutes.Authenticated.Catalogue) }
                     )
                 }
+
+                if (loginState.value != null) {
+                    NavigationDrawerItem(
+                        label = { Text(text = "Log out") },
+                        selected = false,
+                        onClick = { viewModel.logout() }
+                    )
+                }
             }
         },
         content = content

@@ -4,16 +4,16 @@ import android.content.Context
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.home.reader.persistence.repository.IssueRepository
-import com.home.reader.ui.reader.state.ReaderState
-import kotlinx.coroutines.launch
-import java.io.File
 import coil.request.ImageRequest
 import com.home.reader.api.ApiHandler
+import com.home.reader.persistence.repository.IssueRepository
 import com.home.reader.ui.reader.configuration.ReaderConfig
 import com.home.reader.ui.reader.configuration.ReaderConfig.ReaderMode
+import com.home.reader.ui.reader.state.ReaderState
 import com.home.reader.utils.resolve
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import java.io.File
 
 class ReaderViewModel(
     context: Context,
@@ -43,6 +43,7 @@ class ReaderViewModel(
 
     fun requestPage(page: Int): ImageRequest {
         val issueId = state.value.getFileSourceId()
+
         if (state.value.mode == ReaderMode.REMOTE) {
             return imageRequestBuilder.data(api.buildImageUrl("/pages/$issueId/$page")).build()
         }
@@ -79,7 +80,7 @@ class ReaderViewModel(
                 else -> {
                     try {
                         api.updateProgress(state.value.externalId!!, page)
-                    } catch (ex: Exception) {
+                    } catch (_: Exception) {
                         //TODO save to database and post later
                     }
 

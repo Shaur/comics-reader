@@ -1,6 +1,5 @@
 package com.home.reader.ui.reader.screen
 
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.detectTapGestures
@@ -23,16 +22,15 @@ import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.FilterQuality
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import coil.compose.rememberAsyncImagePainter
 import com.home.reader.ui.AppViewModelProvider
 import com.home.reader.ui.common.component.KeepScreenOn
 import com.home.reader.ui.common.component.LinearProgressBarWithIndicator
+import com.home.reader.ui.common.component.ProgressAsyncImage
 import com.home.reader.ui.reader.configuration.ReaderConfig
 import com.home.reader.ui.reader.viewmodel.ReaderViewModel
 import kotlinx.coroutines.launch
@@ -82,11 +80,8 @@ fun ReaderScreen(
         ) { page ->
             Box {
                 key(state.filler) {
-                    Image(
-                        painter = rememberAsyncImagePainter(
-                            viewModel.requestPage(page),
-                            filterQuality = FilterQuality.High
-                        ),
+                    ProgressAsyncImage(
+                        model = viewModel.requestPage(page),
                         contentDescription = "Page $page",
                         contentScale = state.filler.scale,
                         modifier = Modifier

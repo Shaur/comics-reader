@@ -8,6 +8,8 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.NavHostController
@@ -53,11 +55,12 @@ class MainComposeActivity : ComponentActivity() {
 
     @Composable
     fun MainAppNavHost(navController: NavHostController = rememberNavController()) {
+        val currentDestination = rememberSaveable { mutableStateOf("shelf") }
         NavHost(
             navController = navController,
             startDestination = NavigationRoutes.Authenticated.Series
         ) {
-            authenticatedGraph(controller = navController)
+            authenticatedGraph(controller = navController, currentPosition = currentDestination)
         }
     }
 

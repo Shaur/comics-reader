@@ -17,10 +17,11 @@ import com.home.reader.ui.series.screen.SeriesScreen
 
 fun NavGraphBuilder.authenticatedGraph(
     controller: NavController,
-    loginState: MutableState<User?> = mutableStateOf(null)
+    loginState: MutableState<User?> = mutableStateOf(null),
+    currentPosition: MutableState<String>
 ) {
     composable<NavigationRoutes.Authenticated.Series> {
-        NavigationMenu(loginState = loginState, controller = controller) {
+        NavigationMenu(loginState = loginState, controller = controller, currentDestination = currentPosition) {
             SeriesScreen(
                 loginState = loginState,
                 onNavigateToIssuesScreen = { id, name ->
@@ -32,7 +33,7 @@ fun NavGraphBuilder.authenticatedGraph(
 
     composable<NavigationRoutes.Authenticated.Issues> {
         val config: NavigationRoutes.Authenticated.Issues = it.toRoute()
-        NavigationMenu(loginState = loginState, controller = controller) {
+        NavigationMenu(loginState = loginState, controller = controller, currentDestination = currentPosition) {
             IssuesScreen(
                 seriesId = config.seriesId,
                 seriesName = config.name,
@@ -44,13 +45,13 @@ fun NavGraphBuilder.authenticatedGraph(
     composable<ReaderConfig> { ReaderScreen(config = it.toRoute()) }
 
     composable<NavigationRoutes.Unauthenticated.Login> {
-        NavigationMenu(loginState = loginState, controller = controller) {
+        NavigationMenu(loginState = loginState, controller = controller, currentDestination = currentPosition) {
             LoginScreen(navigateOnSuccess = { controller.navigate(NavigationRoutes.Authenticated.Series) })
         }
     }
 
     composable<NavigationRoutes.Authenticated.Catalogue> {
-        NavigationMenu(loginState = loginState, controller = controller) {
+        NavigationMenu(loginState = loginState, controller = controller, currentDestination = currentPosition) {
             CatalogueScreen(
                 onNavigateToReaderScreen = { config -> controller.navigate(config) }
             )

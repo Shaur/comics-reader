@@ -81,7 +81,7 @@ fun ReaderScreen(
             Box {
                 key(state.filler) {
                     ProgressAsyncImage(
-                        model = viewModel.requestPage(page),
+                        model = { viewModel.requestPage(page) },
                         contentDescription = "Page $page",
                         contentScale = state.filler.scale,
                         modifier = Modifier

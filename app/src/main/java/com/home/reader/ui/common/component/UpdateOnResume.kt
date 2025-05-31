@@ -24,7 +24,10 @@ fun UpdateOnResume(
             Lifecycle.State.DESTROYED -> {}
             Lifecycle.State.INITIALIZED -> {}
             Lifecycle.State.CREATED -> {}
-            Lifecycle.State.STARTED -> {viewModel.refresh(onUpdate)}
+            Lifecycle.State.STARTED -> {
+                viewModel.refresh(onUpdate)
+            }
+
             Lifecycle.State.RESUMED -> {}
         }
     }

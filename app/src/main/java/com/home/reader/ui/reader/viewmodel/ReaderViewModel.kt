@@ -75,9 +75,15 @@ class ReaderViewModel(
         state.value = state.value.copy(currentPage = page)
         viewModelScope.launch(Dispatchers.IO) {
             when (state.value.mode) {
-                ReaderMode.REMOTE -> api.updateProgress(state.value.externalId!!, page)
+                ReaderMode.REMOTE -> {
+                    try {
+                        api.updateProgress(state.value.externalId!!, page)
+                    } catch (_: Exception) {
+                        //TODO save to database and post later
+                    }
+                }
                 ReaderMode.LOCAL -> issueRepository.updateState(state.value.id!!, page)
-                else -> {
+                ReaderMode.CACHED -> {
                     try {
                         api.updateProgress(state.value.externalId!!, page)
                     } catch (_: Exception) {

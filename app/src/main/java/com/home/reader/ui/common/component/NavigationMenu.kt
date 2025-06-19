@@ -2,7 +2,6 @@ package com.home.reader.ui.common.component
 
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.AccountCircle
-import androidx.compose.material.icons.rounded.Close
 import androidx.compose.material.icons.rounded.Home
 import androidx.compose.material.icons.rounded.ShoppingCart
 import androidx.compose.material3.Icon
@@ -41,7 +40,11 @@ fun NavigationMenu(
                 selected = currentDestination.value == "login",
                 onClick = {
                     currentDestination.value = "login"
-                    if (loginState.value == null) controller.navigate(NavigationRoutes.Unauthenticated.Login)
+                    if (loginState.value == null) {
+                        controller.navigate(NavigationRoutes.Unauthenticated.Login)
+                    } else {
+                        controller.navigate(NavigationRoutes.Authenticated.Profile)
+                    }
                 }
             )
 
@@ -64,13 +67,6 @@ fun NavigationMenu(
                         currentDestination.value = "catalogue"
                         controller.navigate(NavigationRoutes.Authenticated.Catalogue)
                     }
-                )
-
-                item(
-                    icon = { Icon(Icons.Rounded.Close, contentDescription = "Log out") },
-                    label = { Text(text = "Log out") },
-                    selected = false,
-                    onClick = { viewModel.logout() }
                 )
             }
         },

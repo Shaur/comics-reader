@@ -1,4 +1,4 @@
-package com.home.reader.ui.common.component.viewmodel
+package com.home.reader.ui.profile
 
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
@@ -7,10 +7,9 @@ import com.home.reader.persistence.entity.User
 import com.home.reader.persistence.repository.UserRepository
 import kotlinx.coroutines.launch
 
-class NavigationMenuViewModel(
+class ProfileViewModel(
     private val userRepository: UserRepository
 ) : ViewModel() {
-
     var loginState = mutableStateOf<User?>(null)
 
     init {
@@ -19,4 +18,10 @@ class NavigationMenuViewModel(
         }
     }
 
+    fun logout() {
+        viewModelScope.launch {
+            userRepository.delete()
+            loginState.value = null
+        }
+    }
 }

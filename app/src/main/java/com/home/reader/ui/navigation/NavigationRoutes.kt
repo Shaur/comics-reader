@@ -27,6 +27,9 @@ sealed class NavigationRoutes {
 
         @Serializable
         object Catalogue : Authenticated()
+
+        @Serializable
+        object Profile : Authenticated()
     }
 
 }

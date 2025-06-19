@@ -12,6 +12,7 @@ import com.home.reader.ui.reader.viewmodel.ReaderViewModel
 import com.home.reader.ui.series.viewmodel.SeriesViewModel
 import com.home.reader.ui.common.component.viewmodel.NavigationMenuViewModel
 import com.home.reader.ui.common.component.viewmodel.UpdateOnResumeViewModel
+import com.home.reader.ui.profile.ProfileViewModel
 
 object AppViewModelProvider {
     val Factory = viewModelFactory {
@@ -63,6 +64,12 @@ object AppViewModelProvider {
         initializer {
             UpdateOnResumeViewModel(
                 context = readerApplication().applicationContext
+            )
+        }
+
+        initializer {
+            ProfileViewModel(
+                userRepository = readerApplication().container.userRepository
             )
         }
     }

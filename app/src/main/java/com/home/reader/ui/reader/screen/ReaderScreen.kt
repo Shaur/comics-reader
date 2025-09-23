@@ -1,16 +1,12 @@
 package com.home.reader.ui.reader.screen
 
-import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.detectTapGestures
-import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.PagerDefaults
 import androidx.compose.foundation.pager.rememberPagerState
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -27,6 +23,8 @@ import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.google.mlkit.vision.text.TextRecognition
+import com.google.mlkit.vision.text.latin.TextRecognizerOptions
 import com.home.reader.ui.AppViewModelProvider
 import com.home.reader.ui.common.component.KeepScreenOn
 import com.home.reader.ui.common.component.LinearProgressBarWithIndicator
@@ -57,6 +55,8 @@ fun ReaderScreen(
         LocalConfiguration.current.screenWidthDp.dp.toPx()
     }
 
+    val recognizer = TextRecognition.getClient(TextRecognizerOptions.DEFAULT_OPTIONS)
+
     val coroutineScope = rememberCoroutineScope()
 
     var showProgress by remember { mutableStateOf(false) }
@@ -84,8 +84,9 @@ fun ReaderScreen(
                         model = { viewModel.requestPage(page) },
                         contentDescription = "Page $page",
                         contentScale = state.filler.scale,
+                        recognizer = recognizer,
                         modifier = Modifier
-                            .filler(rememberScrollState(), rememberScrollState())
+                            .filler(/*rememberScrollState(), rememberScrollState()*/)
                             .pointerInput(Unit) {
                                 detectTapGestures(
                                     onDoubleTap = { viewModel.resolverFiller() },
@@ -117,14 +118,14 @@ fun ReaderScreen(
 }
 
 private fun Modifier.filler(
-    horizontalScrollState: ScrollState,
-    verticalScrollState: ScrollState
+//    horizontalScrollState: ScrollState,
+//    verticalScrollState: ScrollState
 ): Modifier {
     return this
         .fillMaxSize()
         .background(Color.Black)
-        .verticalScroll(verticalScrollState)
-        .horizontalScroll(horizontalScrollState)
+//        .verticalScroll(verticalScrollState)
+//        .horizontalScroll(horizontalScrollState)
 }
 
 

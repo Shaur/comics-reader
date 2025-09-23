@@ -109,6 +109,7 @@ fun CatalogueIssueItem(
                 lineHeight = 14.sp,
                 modifier = Modifier.width(COVER_WIDTH)
             )
+
         }
     }
 }

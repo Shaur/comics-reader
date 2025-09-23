@@ -4,10 +4,10 @@
     <selectionStates>
       <SelectionState runConfigName="app">
         <option name="selectionMode" value="DROPDOWN" />
-        <DropdownSelection timestamp="2024-11-03T14:45:52.324472100Z">
+        <DropdownSelection timestamp="2025-07-29T08:40:21.458153600Z">
           <Target type="DEFAULT_BOOT">
             <handle>
-              <DeviceId pluginId="PhysicalDevice" identifier="serial=A2VQ024105006997" />
+              <DeviceId pluginId="LocalEmulator" identifier="path=C:\Users\glama\.android\avd\Pixel_Fold.avd" />
             </handle>
           </Target>
         </DropdownSelection>

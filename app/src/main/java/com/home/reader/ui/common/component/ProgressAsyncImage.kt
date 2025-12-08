@@ -10,8 +10,6 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.key
-import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -44,31 +42,47 @@ fun ProgressAsyncImage(
     contentDescription: String?,
     contentScale: ContentScale,
     recognizer: TextRecognizer,
+    onLoadError: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    var retryCounter by remember { mutableIntStateOf(0) }
     var positions by remember { mutableStateOf(listOf<RecognizedData>()) }
     val graphicsLayer = rememberGraphicsLayer()
 
     val scope = rememberCoroutineScope()
+
+    val verticalScrollState = rememberScrollState()
+    val horizontalScrollState = rememberScrollState()
 
     val painter = rememberAsyncImagePainter(
         model = model.get(),
         filterQuality = FilterQuality.High
     )
 
-    val verticalScrollState = rememberScrollState()
-    val horizontalScrollState = rememberScrollState()
-
     var recognize by remember { mutableStateOf(false) }
 
-    LaunchedEffect(graphicsLayer) {
+    LaunchedEffect(verticalScrollState.value, horizontalScrollState.value) {
         snapshotFlow { graphicsLayer }
             .debounce(300.milliseconds)
             .collect { layer ->
-
                 scope.launch {
-                    recognizer.process(graphicsLayer) {
+                    recognizer.process(layer) {
+                        positions = it
+                        recognize = false
+                    }
+                }
+            }
+    }
+
+    LaunchedEffect(painter.state) {
+        if (painter.state !is AsyncImagePainter.State.Success) {
+            return@LaunchedEffect
+        }
+
+        snapshotFlow { graphicsLayer }
+            .debounce(300.milliseconds)
+            .collect { layer ->
+                scope.launch {
+                    recognizer.process(layer) {
                         positions = it
                         recognize = false
                     }
@@ -90,7 +104,6 @@ fun ProgressAsyncImage(
             RecognizedText(position)
         }
 
-        key(retryCounter) {
             val state = painter.state
 
             Image(
@@ -117,10 +130,8 @@ fun ProgressAsyncImage(
             if (state is AsyncImagePainter.State.Error) {
                 LoadingFailAlert(
                     modifier = Modifier.align(Alignment.Center),
-                    onRefreshClick = { retryCounter = retryCounter + 1 }
+                    onRefreshClick = onLoadError
                 )
             }
         }
-
-    }
 }

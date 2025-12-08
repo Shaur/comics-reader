@@ -11,6 +11,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -51,6 +52,8 @@ fun ReaderScreen(
         initialPage = state.currentPage
     )
 
+    var retryCount by remember { mutableIntStateOf(0) }
+
     val screenWidthInPx = with(LocalDensity.current) {
         LocalConfiguration.current.screenWidthDp.dp.toPx()
     }
@@ -79,12 +82,13 @@ fun ReaderScreen(
             )
         ) { page ->
             Box {
-                key(state.filler) {
+                key(state.filler, retryCount) {
                     ProgressAsyncImage(
                         model = { viewModel.requestPage(page) },
                         contentDescription = "Page $page",
                         contentScale = state.filler.scale,
                         recognizer = recognizer,
+                        onLoadError = { retryCount = retryCount + 1 },
                         modifier = Modifier
                             .filler(/*rememberScrollState(), rememberScrollState()*/)
                             .pointerInput(Unit) {

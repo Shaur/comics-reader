@@ -117,7 +117,7 @@ abstract class ArchiveTool(protected val fileName: String) {
     }
 
     protected fun hasTrashPages(names: Collection<String>): Boolean {
-        val distance = LevenshteinDistance()
+        val distance = LevenshteinDistance.getDefaultInstance()
 
         val min = names.minBy { it.length }
         val max = names.maxBy { it.length }

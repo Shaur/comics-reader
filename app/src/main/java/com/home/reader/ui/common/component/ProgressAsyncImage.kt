@@ -104,34 +104,34 @@ fun ProgressAsyncImage(
             RecognizedText(position)
         }
 
-            val state = painter.state
+        val state = painter.state
 
-            Image(
-                painter = painter,
-                contentDescription = contentDescription,
-                contentScale = contentScale,
-                modifier = modifier
-                    .zIndex(-1f)
-                    .verticalScroll(verticalScrollState)
-                    .horizontalScroll(horizontalScrollState)
+        Image(
+            painter = painter,
+            contentDescription = contentDescription,
+            contentScale = contentScale,
+            modifier = modifier
+                .zIndex(-1f)
+                .verticalScroll(verticalScrollState)
+                .horizontalScroll(horizontalScrollState)
+        )
+
+        if (state is AsyncImagePainter.State.Loading) {
+            CircularProgressIndicator(
+                modifier = Modifier.align(Alignment.Center)
             )
-
-            if (state is AsyncImagePainter.State.Loading) {
-                CircularProgressIndicator(
-                    modifier = Modifier.align(Alignment.Center)
-                )
-            }
-
-            if (state is AsyncImagePainter.State.Success) {
-                Log.i("Recognition trigger", "Recognized: $recognize")
-                recognize = true
-            }
-
-            if (state is AsyncImagePainter.State.Error) {
-                LoadingFailAlert(
-                    modifier = Modifier.align(Alignment.Center),
-                    onRefreshClick = onLoadError
-                )
-            }
         }
+
+        if (state is AsyncImagePainter.State.Success) {
+            Log.i("Recognition trigger", "Recognized: $recognize")
+            recognize = true
+        }
+
+        if (state is AsyncImagePainter.State.Error) {
+            LoadingFailAlert(
+                modifier = Modifier.align(Alignment.Center),
+                onRefreshClick = onLoadError
+            )
+        }
+    }
 }

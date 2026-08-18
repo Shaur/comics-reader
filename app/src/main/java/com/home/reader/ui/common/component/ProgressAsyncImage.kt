@@ -2,12 +2,19 @@ package com.home.reader.ui.common.component
 
 import android.util.Log
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -18,17 +25,22 @@ import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawWithContent
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.FilterQuality
 import androidx.compose.ui.graphics.layer.drawLayer
 import androidx.compose.ui.graphics.rememberGraphicsLayer
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalClipboard
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalTextToolbar
 import androidx.compose.ui.zIndex
 import androidx.core.util.Supplier
 import coil.compose.AsyncImagePainter
 import coil.compose.rememberAsyncImagePainter
 import coil.request.ImageRequest
 import com.google.mlkit.vision.text.TextRecognizer
-import com.home.reader.utils.RecognizedData
+import com.home.reader.utils.RecognizedBlock
 import com.home.reader.utils.process
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.debounce
@@ -45,7 +57,7 @@ fun ProgressAsyncImage(
     onLoadError: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    var positions by remember { mutableStateOf(listOf<RecognizedData>()) }
+    var positions by remember { mutableStateOf(listOf<RecognizedBlock>()) }
     val graphicsLayer = rememberGraphicsLayer()
 
     val scope = rememberCoroutineScope()
@@ -100,9 +112,39 @@ fun ProgressAsyncImage(
         }
     ) {
 
-        for (position in positions) {
-            RecognizedText(position)
+        val ctx = LocalContext.current
+
+        for (block in positions) {
+            val relativeBounds = with(LocalDensity.current) {
+                RelativeRect(
+                    x = block.rect.left.toDp(),
+                    y = block.rect.top.toDp(),
+                    width = block.rect.width().toDp(),
+                    height = block.rect.height().toDp()
+                )
+            }
+
+            CompositionLocalProvider(
+                LocalTextToolbar provides SelectedTextToolbar(ctx, LocalClipboard.current)
+            ) {
+                SelectionContainer(
+                    modifier = Modifier
+                        .width(relativeBounds.width)
+                        .height(relativeBounds.height)
+                        .offset(relativeBounds.x, relativeBounds.y)
+                        .background(color = Color.Transparent)
+                ) {
+                    Column {
+                        val lineHeight = relativeBounds.height / block.data.size
+                        for (data in block.data) {
+                            RecognizedText(data, relativeBounds.x, lineHeight)
+                        }
+                    }
+                }
+            }
+
         }
+
 
         val state = painter.state
 

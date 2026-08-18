@@ -12,7 +12,7 @@ import com.home.reader.persistence.repository.UserRepository
 
 class ApiHandler(private val userRepository: UserRepository) {
 
-    private val processor = ApiProcessor("https://paper.webhop.me/api")
+    private val processor = ApiProcessor("https://paper.jo3.org/api")
 
     private val tokenState = mutableStateOf<String?>(null)
 

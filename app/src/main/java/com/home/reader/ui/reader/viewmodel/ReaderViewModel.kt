@@ -4,7 +4,7 @@ import android.content.Context
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import coil.request.ImageRequest
+import coil3.request.ImageRequest
 import com.home.reader.api.ApiHandler
 import com.home.reader.persistence.repository.IssueRepository
 import com.home.reader.ui.reader.configuration.ReaderConfig
@@ -41,14 +41,16 @@ class ReaderViewModel(
         return files[page]
     }
 
-    fun requestPage(page: Int): ImageRequest {
+    fun requestPage(page: Int): ImageRequest.Builder {
         val issueId = state.value.getFileSourceId()
 
         if (state.value.mode == ReaderMode.REMOTE) {
-            return imageRequestBuilder.data(api.buildImageUrl("/pages/$issueId/$page")).build()
+            return imageRequestBuilder
+                .data(api.buildImageUrl("/pages/$issueId/$page"))
         }
 
-        return imageRequestBuilder.data(loadLocalPage(issueId, page)).build()
+        return imageRequestBuilder
+            .data(loadLocalPage(issueId, page))
     }
 
     fun initState(config: ReaderConfig) {

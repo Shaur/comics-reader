@@ -1,7 +1,5 @@
 package com.home.reader.ui.common.component
 
-import android.util.Log
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Box
@@ -34,11 +32,16 @@ import androidx.compose.ui.platform.LocalClipboard
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalTextToolbar
+import androidx.compose.ui.platform.LocalWindowInfo
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
 import androidx.core.util.Supplier
-import coil.compose.AsyncImagePainter
-import coil.compose.rememberAsyncImagePainter
-import coil.request.ImageRequest
+import coil3.annotation.ExperimentalCoilApi
+import coil3.compose.SubcomposeAsyncImage
+import coil3.request.ImageRequest
+import coil3.request.crossfade
+import coil3.size.Dimension
+import coil3.size.Size
 import com.google.mlkit.vision.text.TextRecognizer
 import com.home.reader.utils.RecognizedBlock
 import com.home.reader.utils.process
@@ -47,10 +50,10 @@ import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.launch
 import kotlin.time.Duration.Companion.milliseconds
 
-@OptIn(FlowPreview::class)
+@OptIn(FlowPreview::class, ExperimentalCoilApi::class)
 @Composable
 fun ProgressAsyncImage(
-    model: Supplier<ImageRequest>,
+    model: Supplier<ImageRequest.Builder>,
     contentDescription: String?,
     contentScale: ContentScale,
     recognizer: TextRecognizer,
@@ -65,31 +68,9 @@ fun ProgressAsyncImage(
     val verticalScrollState = rememberScrollState()
     val horizontalScrollState = rememberScrollState()
 
-    val painter = rememberAsyncImagePainter(
-        model = model.get(),
-        filterQuality = FilterQuality.High
-    )
-
     var recognize by remember { mutableStateOf(false) }
 
-    LaunchedEffect(verticalScrollState.value, horizontalScrollState.value) {
-        snapshotFlow { graphicsLayer }
-            .debounce(300.milliseconds)
-            .collect { layer ->
-                scope.launch {
-                    recognizer.process(layer) {
-                        positions = it
-                        recognize = false
-                    }
-                }
-            }
-    }
-
-    LaunchedEffect(painter.state) {
-        if (painter.state !is AsyncImagePainter.State.Success) {
-            return@LaunchedEffect
-        }
-
+    LaunchedEffect(verticalScrollState.isScrollInProgress, horizontalScrollState.isScrollInProgress) {
         snapshotFlow { graphicsLayer }
             .debounce(300.milliseconds)
             .collect { layer ->
@@ -103,13 +84,15 @@ fun ProgressAsyncImage(
     }
 
     Box(
-        modifier = Modifier.drawWithContent {
-            graphicsLayer.record {
-                this@drawWithContent.drawContent()
-            }
+        modifier = Modifier
+            .then(modifier)
+            .drawWithContent {
+                graphicsLayer.record {
+                    this@drawWithContent.drawContent()
+                }
 
-            drawLayer(graphicsLayer)
-        }
+                drawLayer(graphicsLayer)
+            }
     ) {
 
         val ctx = LocalContext.current
@@ -145,35 +128,42 @@ fun ProgressAsyncImage(
 
         }
 
-
-        val state = painter.state
-
-        Image(
-            painter = painter,
+        val width = LocalWindowInfo.current.containerSize.width
+        val height = LocalWindowInfo.current.containerSize.height
+        SubcomposeAsyncImage(
+            model = model.get()
+                .crossfade(300)
+                .size {
+                    if (contentScale == ContentScale.FillWidth) {
+                        Size(width, Dimension.Undefined)
+                    } else {
+                        Size(Dimension.Undefined, height)
+                    }
+                }
+                .build(),
+            filterQuality = FilterQuality.High,
             contentDescription = contentDescription,
             contentScale = contentScale,
-            modifier = modifier
+            loading = {
+                CircularProgressIndicator(
+                    modifier = Modifier
+                        .width(50.dp)
+                        .height(50.dp)
+                        .align(Alignment.Center)
+                )
+            },
+            error = {
+                LoadingFailAlert(
+                    modifier = Modifier.align(Alignment.Center),
+                    onRefreshClick = onLoadError
+                )
+            },
+            onSuccess = { recognize = true },
+            modifier = Modifier
                 .zIndex(-1f)
+                .align(Alignment.Center)
                 .verticalScroll(verticalScrollState)
                 .horizontalScroll(horizontalScrollState)
         )
-
-        if (state is AsyncImagePainter.State.Loading) {
-            CircularProgressIndicator(
-                modifier = Modifier.align(Alignment.Center)
-            )
-        }
-
-        if (state is AsyncImagePainter.State.Success) {
-            Log.i("Recognition trigger", "Recognized: $recognize")
-            recognize = true
-        }
-
-        if (state is AsyncImagePainter.State.Error) {
-            LoadingFailAlert(
-                modifier = Modifier.align(Alignment.Center),
-                onRefreshClick = onLoadError
-            )
-        }
     }
 }

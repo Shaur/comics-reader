@@ -119,7 +119,10 @@ dependencies {
     implementation("androidx.paging:paging-runtime-ktx:3.5.1")
 
     //Image loader
-    implementation("io.coil-kt:coil-compose:2.7.0")
+//    implementation("io.coil-kt:coil-compose:2.7.0")
+    implementation("io.coil-kt.coil3:coil-compose:3.6.1")
+    implementation("io.coil-kt.coil3:coil-network-ktor3:3.6.1")
+    implementation("io.ktor:ktor-client-android:3.5.2")
 
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.11.0")
 

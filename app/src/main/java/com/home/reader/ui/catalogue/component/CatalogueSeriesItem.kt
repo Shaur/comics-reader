@@ -14,7 +14,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import coil.compose.AsyncImage
+import coil3.compose.AsyncImage
 import com.home.reader.api.dto.SeriesDto
 import com.home.reader.utils.Constants.Sizes.COVER_HEIGHT
 import com.home.reader.utils.Constants.Sizes.COVER_WIDTH

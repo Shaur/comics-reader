@@ -22,7 +22,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import coil.compose.AsyncImage
+import coil3.compose.AsyncImage
 import com.home.reader.api.dto.IssueDto
 import com.home.reader.ui.reader.configuration.ReaderConfig
 import com.home.reader.utils.Constants.Sizes.COVER_HEIGHT

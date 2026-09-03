@@ -83,9 +83,10 @@ fun ReaderScreen(
                         contentDescription = "Page $page",
                         contentScale = state.filler.scale,
                         recognizer = recognizer,
-                        onLoadError = { retryCount = retryCount + 1 },
+                        onLoadError = { retryCount += 1 },
                         modifier = Modifier
-                            .filler(/*rememberScrollState(), rememberScrollState()*/)
+                            .fillMaxSize()
+                            .background(Color.Black)
                             .pointerInput(Unit) {
                                 detectTapGestures(
                                     onDoubleTap = { viewModel.resolverFiller() },
@@ -112,17 +113,6 @@ fun ReaderScreen(
         }
     }
 
-}
-
-private fun Modifier.filler(
-//    horizontalScrollState: ScrollState,
-//    verticalScrollState: ScrollState
-): Modifier {
-    return this
-        .fillMaxSize()
-        .background(Color.Black)
-//        .verticalScroll(verticalScrollState)
-//        .horizontalScroll(horizontalScrollState)
 }
 
 

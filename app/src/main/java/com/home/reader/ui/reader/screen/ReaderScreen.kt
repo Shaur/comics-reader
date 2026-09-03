@@ -20,9 +20,7 @@ import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
-import androidx.compose.ui.platform.LocalConfiguration
-import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.unit.dp
+import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.google.mlkit.vision.text.TextRecognition
 import com.google.mlkit.vision.text.latin.TextRecognizerOptions
@@ -33,7 +31,6 @@ import com.home.reader.ui.common.component.ProgressAsyncImage
 import com.home.reader.ui.reader.configuration.ReaderConfig
 import com.home.reader.ui.reader.viewmodel.ReaderViewModel
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 
 
 @Composable
@@ -54,9 +51,7 @@ fun ReaderScreen(
 
     var retryCount by remember { mutableIntStateOf(0) }
 
-    val screenWidthInPx = with(LocalDensity.current) {
-        LocalConfiguration.current.screenWidthDp.dp.toPx()
-    }
+    val screenWidthInPx = LocalWindowInfo.current.containerSize.width
 
     val recognizer = TextRecognition.getClient(TextRecognizerOptions.DEFAULT_OPTIONS)
 
@@ -96,11 +91,9 @@ fun ReaderScreen(
                                     onDoubleTap = { viewModel.resolverFiller() },
                                     onLongPress = { showProgress = !showProgress },
                                     onTap = { offset ->
-                                        viewModel.resolveClick(screenWidthInPx, offset.x) {
+                                        viewModel.resolveClick(screenWidthInPx.toFloat(), offset.x) {
                                             coroutineScope.launch {
-                                                withContext(this.coroutineContext) {
-                                                    pagerState.animateScrollToPage(it)
-                                                }
+                                                pagerState.animateScrollToPage(it)
                                             }
                                         }
                                     }

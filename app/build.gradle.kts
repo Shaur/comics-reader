@@ -80,7 +80,7 @@ dependencies {
     val composeVersion = "1.12.0"
 
     implementation(fileTree(mapOf("dir" to "libs", "include" to listOf("*.jar"))))
-    implementation("com.github.junrar:junrar:8.1.0")
+    implementation("com.github.junrar:junrar:8.1.1")
 
     implementation("androidx.work:work-runtime-ktx:2.11.2")
 
@@ -107,7 +107,7 @@ dependencies {
 
     implementation("com.google.mlkit:text-recognition:16.0.1")
 
-    implementation("androidx.navigation:navigation-compose:2.9.8")
+    implementation("androidx.navigation:navigation-compose:2.10.0")
     implementation("androidx.compose.material3:material3:1.4.0")
     implementation("androidx.compose.material:material:$composeVersion")
     implementation("androidx.compose.ui:ui-tooling-preview:$composeVersion")
@@ -124,7 +124,7 @@ dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.11.0")
 
     //For REST api
-    implementation("com.squareup.okhttp3:okhttp:5.4.0")
+    implementation("com.squareup.okhttp3:okhttp:5.5.0")
     implementation("com.google.code.gson:gson:2.14.0")
 
     implementation(kotlin("stdlib"))

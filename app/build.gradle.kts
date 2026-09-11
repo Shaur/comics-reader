@@ -1,7 +1,7 @@
 plugins {
-    id("org.jetbrains.kotlin.plugin.serialization") version "2.4.10"
-    id("org.jetbrains.kotlin.plugin.compose") version "2.4.10"
-    id("com.google.devtools.ksp") version "2.3.7"
+    id("org.jetbrains.kotlin.plugin.serialization") version "2.4.20"
+    id("org.jetbrains.kotlin.plugin.compose") version "2.4.20"
+    id("com.google.devtools.ksp") version "2.3.10"
 
     id("com.android.application")
 }
@@ -76,8 +76,8 @@ android {
 dependencies {
     val lifecycleVersion = "2.11.0"
     val jwtVersion = "0.13.0"
-    val roomVersion = "2.8.4"
-    val composeVersion = "1.12.0"
+    val roomVersion = "2.8.5"
+    val composeVersion = "1.12.1"
 
     implementation(fileTree(mapOf("dir" to "libs", "include" to listOf("*.jar"))))
     implementation("com.github.junrar:junrar:8.1.1")
@@ -107,7 +107,7 @@ dependencies {
 
     implementation("com.google.mlkit:text-recognition:16.0.1")
 
-    implementation("androidx.navigation:navigation-compose:2.10.0")
+    implementation("androidx.navigation:navigation-compose:2.10.1")
     implementation("androidx.compose.material3:material3:1.4.0")
     implementation("androidx.compose.material:material:$composeVersion")
     implementation("androidx.compose.ui:ui-tooling-preview:$composeVersion")
@@ -119,10 +119,8 @@ dependencies {
     implementation("androidx.paging:paging-runtime-ktx:3.5.1")
 
     //Image loader
-//    implementation("io.coil-kt:coil-compose:2.7.0")
-    implementation("io.coil-kt.coil3:coil-compose:3.6.1")
-    implementation("io.coil-kt.coil3:coil-network-ktor3:3.6.1")
-    implementation("io.ktor:ktor-client-android:3.5.2")
+    implementation("io.coil-kt.coil3:coil-compose:3.6.2")
+    implementation("io.coil-kt.coil3:coil-network-okhttp:3.6.2")
 
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.11.0")
 
@@ -136,7 +134,7 @@ dependencies {
     implementation("androidx.constraintlayout:constraintlayout:2.2.2")
     implementation("com.google.android.material:material:1.14.0")
 
-    implementation("org.slf4j:slf4j-simple:2.0.18")
+    implementation("org.slf4j:slf4j-simple:2.0.19")
 
     testImplementation("junit:junit:4.13.2")
     androidTestImplementation("androidx.test.ext:junit:1.3.0")

@@ -70,7 +70,7 @@ fun ProgressAsyncImage(
 
     var recognize by remember { mutableStateOf(false) }
 
-    LaunchedEffect(verticalScrollState.isScrollInProgress, horizontalScrollState.isScrollInProgress) {
+    LaunchedEffect(recognize, verticalScrollState.isScrollInProgress, horizontalScrollState.isScrollInProgress) {
         snapshotFlow { graphicsLayer }
             .debounce(300.milliseconds)
             .collect { layer ->
